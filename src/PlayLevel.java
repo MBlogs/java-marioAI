@@ -1,6 +1,7 @@
 import agents.MarioAgent;
 import engine.core.*;
 import levelGenerators.MarioLevelGenerator;
+import levelGenerators.groupx.*;
 
 import static engine.helper.RunUtils.*;
 
@@ -10,9 +11,13 @@ public class PlayLevel {
     public static void main(String[] args) {
         // Run settings:
         boolean visuals = true;  // Set to false if no visuals required for this run.
-        boolean generateDifferentLevels = false;  // If true, each play will be a different generated level.
+        boolean generateDifferentLevels = true;  // If true, each play will be a different generated level.
         String levelFile = "levels/original/lvl-1.txt";  // null;
-        MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator();  // null;
+        levelFile = null;
+        lab2 generator = new levelGenerators.groupx.lab2();  // null;
+        //MB:Set the parameters
+        generator.setParameters(new int[]{0,0,1,1,1,0,0,1});
+
 
         // Note: either levelFile or generator must be non-null. If neither is null, levelFile takes priority.
         if (levelFile == null && generator == null) {
@@ -50,5 +55,17 @@ public class PlayLevel {
             // Check if we should play again.
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time
         }
+    }
+
+    private double evaluateLevelFitness(String levelString){
+        // MB: Evaluate the fitness of a given input level string
+
+        //Number of gaps in the floor
+        // Proportion of ground to floating tiles
+        // Density of enemies same type
+
+
+
+        return 0.0;
     }
 }
