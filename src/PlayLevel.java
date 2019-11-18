@@ -1,5 +1,6 @@
 import agents.MarioAgent;
 import engine.core.*;
+import engine.sprites.Mario;
 import levelGenerators.MarioLevelGenerator;
 import levelGenerators.groupx.*;
 
@@ -17,7 +18,6 @@ public class PlayLevel {
         lab2 generator = new levelGenerators.groupx.lab2();   // null;
         //MB:Set the parameters
         generator.setParameters(new int[]{0,0,1,1,1,0,0,1});
-
 
         // Note: either levelFile or generator must be non-null. If neither is null, levelFile takes priority.
         if (levelFile == null && generator == null) {
@@ -39,13 +39,17 @@ public class PlayLevel {
         while (playAgain == 0) {  // 0 - play again! 1 - end execution.
 
             // Play the level, either as a human ...
-            MarioResult result = game.playGame(level, 200, 0);
+            //MarioResult result = game.playGame(level, 200, 0);
 
             // ... Or with an AI agent
-//            MarioResult result = game.runGame(agent, level, 20, 0, visuals);
-
+            visuals = false;
+            MarioResult result_1 = game.runGame(new agents.robinBaumgarten.Agent(), level, 20, 0, visuals);
+            MarioResult result_2 = game.runGame(new agents.random.Agent(), level, 20, 0, visuals);
+            MarioResult result_3 = game.runGame(new agents.andySloane.Agent(), level, 20, 0, visuals);
             // Print the results of the game
-            System.out.println(result.getGameStatus().toString());
+            System.out.println(result_1.getGameStatus().toString());
+            System.out.println(result_2.getGameStatus().toString());
+            System.out.println(result_3.getGameStatus().toString());
 //            System.out.println(resultToStats(result).toString());
 
             if (generateDifferentLevels) {
@@ -55,17 +59,5 @@ public class PlayLevel {
             // Check if we should play again.
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time
         }
-    }
-
-    private double evaluateLevelFitness(String levelString){
-        // MB: Evaluate the fitness of a given input level string
-
-        //Number of gaps in the floor
-        // Proportion of ground to floating tiles
-        // Density of enemies same type
-
-
-
-        return 0.0;
     }
 }

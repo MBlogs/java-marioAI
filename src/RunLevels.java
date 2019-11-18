@@ -45,6 +45,7 @@ public class RunLevels {
 
         // Create a MarioGame instance, AI to play the game and level generator (not necessary if `levels' used)
         MarioGame game = new MarioGame();
+        // MB: Agent that will play the game
         MarioAgent agent = new agents.robinBaumgarten.Agent();  // TODO: agent to play the game
         MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator();  // TODO: level generator
 

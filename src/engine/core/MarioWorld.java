@@ -49,6 +49,20 @@ public class MarioWorld {
         this.killEvents = killEvents;
     }
 
+    //MB: Lazy Build
+    public MarioWorld() {
+        this.pauseTimer = 0;
+        this.gameStatus = GameStatus.RUNNING;
+        this.sprites = new ArrayList<>();
+        this.shellsToCheck = new ArrayList<>();
+        this.fireballsToCheck = new ArrayList<>();
+        this.addedSprites = new ArrayList<>();
+        this.removedSprites = new ArrayList<>();
+        this.effects = new ArrayList<>();
+        this.lastFrameEvents = new ArrayList<>();
+        this.killEvents = new MarioEvent[2];
+    }
+
     public void initializeVisuals(GraphicsConfiguration graphicsConfig, int backgroundWidth) {
         int[][] tempBackground = new int[][]{
                 new int[]{42},
