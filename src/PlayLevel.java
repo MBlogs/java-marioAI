@@ -14,7 +14,7 @@ public class PlayLevel {
         boolean generateDifferentLevels = true;  // If true, each play will be a different generated level.
         String levelFile = "levels/original/lvl-1.txt";  // null;
         levelFile = null;
-        lab2 generator = new levelGenerators.groupx.lab2();  // null;
+        lab2 generator = new levelGenerators.groupx.lab2();   // null;
         //MB:Set the parameters
         generator.setParameters(new int[]{0,0,1,1,1,0,0,1});
 
