@@ -1,7 +1,9 @@
 import agents.MarioAgent;
 import engine.core.*;
+import engine.helper.MarioTimer;
 import levelGenerators.MarioLevelGenerator;
 import levelGenerators.groupx.*;
+import levelGenerators.projectx.*;
 
 import static engine.helper.RunUtils.*;
 
@@ -11,13 +13,15 @@ public class PlayLevel {
     public static void main(String[] args) {
         // Run settings:
         boolean visuals = true;  // Set to false if no visuals required for this run.
-        boolean generateDifferentLevels = true;  // If true, each play will be a different generated level.
-        String levelFile = "levels/original/lvl-1.txt";  // null;
-        levelFile = null;
-        lab2 generator = new levelGenerators.groupx.lab2();  // null;
-        //MB:Set the parameters
-        generator.setParameters(new int[]{0,0,1,1,1,0,0,1});
+        boolean generateDifferentLevels = false;  // If true, each play will be a different generated level.
+        String levelFile = null; //"levels/notch/lvl-11.txt";  // null;
+        //levelFile = null;
+        //LevelGenerator generator = null; //new levelGenerators.groupx.lab2();  // null;
 
+
+        //XW: init projectXGenerator
+        LevelGenerator generator = new levelGenerators.projectx.LevelGenerator();
+        //generator.makeDistribution();
 
         // Note: either levelFile or generator must be non-null. If neither is null, levelFile takes priority.
         if (levelFile == null && generator == null) {
@@ -39,10 +43,10 @@ public class PlayLevel {
         while (playAgain == 0) {  // 0 - play again! 1 - end execution.
 
             // Play the level, either as a human ...
-            MarioResult result = game.playGame(level, 200, 0);
+            //MarioResult result = game.playGame(level, 200, 0);
 
             // ... Or with an AI agent
-//            MarioResult result = game.runGame(agent, level, 20, 0, visuals);
+            MarioResult result = game.runGame(agent, level, 20, 0, visuals);
 
             // Print the results of the game
             System.out.println(result.getGameStatus().toString());
@@ -55,17 +59,5 @@ public class PlayLevel {
             // Check if we should play again.
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time
         }
-    }
-
-    private double evaluateLevelFitness(String levelString){
-        // MB: Evaluate the fitness of a given input level string
-
-        //Number of gaps in the floor
-        // Proportion of ground to floating tiles
-        // Density of enemies same type
-
-
-
-        return 0.0;
     }
 }
