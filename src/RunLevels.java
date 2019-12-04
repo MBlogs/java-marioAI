@@ -19,10 +19,10 @@ public class RunLevels {
     }
 
     public static void main(String[] args) {
-        // Run default settings:
+        // Default settings:
         int noLevels = 2;
-        int repsPerLevel = 50;
-        boolean usingGenerator = true;
+        int repsPerLevel = 5;
+        boolean usingGenerator = false;
         int agentTimer = 20;
         String[] levels = new String[]{"levels/original/lvl-1.txt", "levels/original/lvl-2.txt"};
 
@@ -45,9 +45,8 @@ public class RunLevels {
 
         // Create a MarioGame instance, AI to play the game and level generator (not necessary if `levels' used)
         MarioGame game = new MarioGame();
-        // MB: Agent that will play the game
-        MarioAgent agent = new agents.robinBaumgarten.Agent();  // TODO: agent to play the game
-        MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator();  // TODO: level generator
+        MarioAgent agent = new agents.robinBaumgarten.Agent();
+        MarioLevelGenerator generator = new levelGenerators.notch.LevelGenerator();
 
         if (!usingGenerator) {  // Make sure the value is correct if not using level generator.
             noLevels = levels.length;
@@ -66,7 +65,6 @@ public class RunLevels {
             // Run the level several times
             for (int j = 0; j < repsPerLevel; j++) {
                 MarioResult result = game.runGame(agent, level, agentTimer, 0, false);
-
                 System.out.println((i+1) + "/" + noLevels + ";" + (j+1) + "/" + repsPerLevel + ": "
                         + result.getGameStatus().toString());
                 MarioStats stats = resultToStats(result);
@@ -77,4 +75,28 @@ public class RunLevels {
         System.out.println("------------");
         System.out.println(average.toString());
     }
+
+    private MarioStats evaluateAgentStats(MarioGame game, MarioAgent agent){
+        // Run a particular agent on a particular list of levels
+        // Return aggregated stats
+        return evaluateAgentStats(game,agent,new String[]{"levels/original/lvl-1.txt"}, 1);
+    }
+
+    private MarioStats evaluateAgentStats(MarioGame game, MarioAgent agent, String[] levels, int repsPerLevel){
+        // Run a particular agent on a particular list of levels.
+        // Return aggregated stats.
+
+        MarioStats average = new MarioStats();
+
+        for(int i = 0; i < levels.length; i++){
+            for (int j = 0; j < repsPerLevel; j++) {
+                MarioResult result = game.runGame(agent, levels[0], 20, 0, false);
+                MarioStats stats = resultToStats(result);
+                average = average.merge(stats);
+            }
+        }
+        return average;
+    }
+
+
 }
