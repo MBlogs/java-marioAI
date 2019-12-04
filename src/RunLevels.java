@@ -64,7 +64,7 @@ public class RunLevels {
 
             // Run the level several times
             for (int j = 0; j < repsPerLevel; j++) {
-                MarioResult result = game.runGame(agent, level, agentTimer, 0, false);
+                MarioResult result = game.runGame(agent, level, agentTimer, 0, true);
                 System.out.println((i+1) + "/" + noLevels + ";" + (j+1) + "/" + repsPerLevel + ": "
                         + result.getGameStatus().toString());
                 MarioStats stats = resultToStats(result);
@@ -75,28 +75,4 @@ public class RunLevels {
         System.out.println("------------");
         System.out.println(average.toString());
     }
-
-    private MarioStats evaluateAgentStats(MarioGame game, MarioAgent agent){
-        // Run a particular agent on a particular list of levels
-        // Return aggregated stats
-        return evaluateAgentStats(game,agent,new String[]{"levels/original/lvl-1.txt"}, 1);
-    }
-
-    private MarioStats evaluateAgentStats(MarioGame game, MarioAgent agent, String[] levels, int repsPerLevel){
-        // Run a particular agent on a particular list of levels.
-        // Return aggregated stats.
-
-        MarioStats average = new MarioStats();
-
-        for(int i = 0; i < levels.length; i++){
-            for (int j = 0; j < repsPerLevel; j++) {
-                MarioResult result = game.runGame(agent, levels[0], 20, 0, false);
-                MarioStats stats = resultToStats(result);
-                average = average.merge(stats);
-            }
-        }
-        return average;
-    }
-
-
 }

@@ -1,4 +1,4 @@
-package levelGenerators.projectx;
+package levelGenerators.groupx;
 
 import java.io.*;
 import java.util.HashMap;

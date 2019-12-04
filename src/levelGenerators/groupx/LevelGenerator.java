@@ -1,6 +1,9 @@
-package levelGenerators.projectx;
+package levelGenerators.groupx;
 
+import agents.MarioAgent;
+import engine.core.MarioGame;
 import engine.core.MarioLevelModel;
+import engine.helper.MarioStats;
 import engine.helper.MarioTimer;
 import levelGenerators.MarioLevelGenerator;
 
@@ -16,12 +19,14 @@ import static engine.helper.RunUtils.*;
 public class LevelGenerator implements MarioLevelGenerator{
 
     public String workingdir = "";
-    public String projectxdir = "";
+    public String groupxdir = "";
+    private Utils groupxutils;
 
     // Constructor
     public LevelGenerator(){
         this.workingdir = System.getProperty("user.dir");
-        this.projectxdir = workingdir+"/src/levelGenerators/projectx/";
+        this.groupxdir = workingdir+"/src/levelGenerators/groupx/";
+        this.groupxutils = new Utils();
     }
 
     /**
@@ -92,7 +97,7 @@ public class LevelGenerator implements MarioLevelGenerator{
         HashMap<String, SliceDistribution> map = null;
         try
         {
-            FileInputStream fis = new FileInputStream(projectxdir+"SliceDistributions.ser");
+            FileInputStream fis = new FileInputStream(groupxdir+"SliceDistributions.ser");
             ObjectInputStream ois = new ObjectInputStream(fis);
             map = (HashMap) ois.readObject();
             ois.close();
@@ -123,7 +128,6 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     public void makeDistribution(){
-
         // Set paths to working directory and mario levels
         String levelFilenamePrefix = workingdir+"/levels/original/lvl-";
 
@@ -167,17 +171,18 @@ public class LevelGenerator implements MarioLevelGenerator{
         // Saving it
         try
         {
-            FileOutputStream fos = new FileOutputStream(projectxdir+"SliceDistributions.ser");
+            FileOutputStream fos = new FileOutputStream(groupxdir+"SliceDistributions.ser");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(SliceDistributions);
             oos.close();
             fos.close();
-            System.out.printf("Serialized HashMap data is saved in "+projectxdir+"SliceDistributions.ser");
+            System.out.printf("Serialized HashMap data is saved in "+groupxdir+"SliceDistributions.ser");
         }catch(IOException ioe)
         {
             ioe.printStackTrace();
         }
     }
+
 
     public String getVerticalSlice(String level, int index, int width){
 
@@ -221,5 +226,5 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     //Return the name of the level generator
-    public String getGeneratorName(){return "projectx";}
+    public String getGeneratorName(){return "groupx";}
 }
