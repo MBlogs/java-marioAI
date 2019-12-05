@@ -31,6 +31,9 @@ public class LevelGenerator implements MarioLevelGenerator{
      */
     public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer){
 
+        // INIT random
+        Random r = new Random();
+
         // Clear the map
         model.clearMap();
 
@@ -38,6 +41,9 @@ public class LevelGenerator implements MarioLevelGenerator{
         HashMap<String, SliceDistribution> SliceDistributions = retrieveSliceDistributions();
         int length = SliceDistributions.size();
 
+        // Get ArrayList with all slices
+        ArrayList<String> allSlices = retrieveAllSlices();
+        int nSlices = allSlices.size();
 
         // Initialize an empty level of desired width
         int width = 151;
@@ -61,12 +67,28 @@ public class LevelGenerator implements MarioLevelGenerator{
         String currentSlice = firstSlice;
         String nextSlice = "";
 
+        // Boolean to check if 6 same pieces have come in a row - boring
+        int boring = 0;
+
         for(int i = 4; i < 148; i++){
             SliceDistribution temp = SliceDistributions.get(currentSlice);
             nextSlice = temp.sample();
-            System.out.println("Nextslice = " + nextSlice + " at index "+i);
+
+            // check boringness
+            if(nextSlice.equals(currentSlice)) boring+=1;
+            else boring = 0;
+
+            if(boring == 6){
+              while(nextSlice.equals(currentSlice)){
+                  nextSlice = allSlices.get(r.nextInt(nSlices));
+              }
+              boring = 0;
+            }
+
+
             level = setVerticalSlice(level, nextSlice, i, width);
             currentSlice = nextSlice;
+
         }
         System.out.println(level);
         return level;
@@ -122,6 +144,33 @@ public class LevelGenerator implements MarioLevelGenerator{
         return map;
     }
 
+    // De-Serializes the SliceDistributions HashMap and returns it
+    public ArrayList<String> retrieveAllSlices(){
+
+        ArrayList<String> array = null;
+        try
+        {
+            FileInputStream fis = new FileInputStream(projectxdir+"allSlices.ser");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            array = (ArrayList<String>) ois.readObject();
+            ois.close();
+            fis.close();
+        }catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+            return null;
+        }catch(ClassNotFoundException c)
+        {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return null;
+        }
+
+        System.out.println("Deserialized ArrayList..");
+
+        return array;
+    }
+
     public void makeDistribution(){
 
         // Set paths to working directory and mario levels
@@ -164,7 +213,14 @@ public class LevelGenerator implements MarioLevelGenerator{
             }
         }
 
-        // Saving it
+        ArrayList<String> allSlices = new ArrayList<>();
+
+        // Make an array with all types of slices
+        for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
+            allSlices.add(entry.getKey());
+        }
+
+        // Saving both: SliceDistributions and AllSlices
         try
         {
             FileOutputStream fos = new FileOutputStream(projectxdir+"SliceDistributions.ser");
@@ -172,7 +228,21 @@ public class LevelGenerator implements MarioLevelGenerator{
             oos.writeObject(SliceDistributions);
             oos.close();
             fos.close();
-            System.out.printf("Serialized HashMap data is saved in "+projectxdir+"SliceDistributions.ser");
+            System.out.printf("Serialized HashMap data is saved in "+projectxdir+"SliceDistributions.ser\n");
+        }catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+
+        //allslices
+        try
+        {
+            FileOutputStream fos = new FileOutputStream(projectxdir+"allSlices.ser");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(allSlices);
+            oos.close();
+            fos.close();
+            System.out.printf("Serialized ArrayList (allSlices data is saved in "+projectxdir+"allSlices.ser");
         }catch(IOException ioe)
         {
             ioe.printStackTrace();
