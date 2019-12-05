@@ -21,20 +21,58 @@ public class LevelGenerator implements MarioLevelGenerator{
     public String workingdir = "";
     public String groupxdir = "";
     private Utils groupxutils;
+    private Optimizer optimizer;
+    private HashMap<String, SliceDistribution> SliceDistributions = null;
+    ArrayList<String> allSlices = null;
 
     // Constructor
     public LevelGenerator(){
         this.workingdir = System.getProperty("user.dir");
         this.groupxdir = workingdir+"/src/levelGenerators/groupx/";
         this.groupxutils = new Utils();
+        this.optimizer = new Optimizer();
+        this.SliceDistributions = retrieveSliceDistributions();
+        this.allSlices = retrieveAllSlices();
     }
+
+    public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
+        // Step 1: Initialisation.
+        System.out.println("Step 1: generating starting levels...");
+        String[] levels = initialiseLevels();
+        // Step 2: Optimisation
+        optimizer.runOptimization(levels,this);
+        System.out.println(levels[0]);
+        return levels[0];
+    }
+
+    public String[] initialiseLevels(){
+        // Intitialise a set of levels through slice distribtion.
+        String[] levels = new String[Optimizer.LEVEL_N];
+        String level = "";
+
+        MarioLevelModel levelModel = new MarioLevelModel(150, 16);
+        MarioTimer timer = new MarioTimer(5 * 60 * 60 * 1000);
+
+        for (int i = 0; i<Optimizer.LEVEL_N; i++){
+            int validLevel = 0;
+
+            while(validLevel != 150){
+                level = getSlicedLevel(levelModel,timer);
+                validLevel = groupxutils.validateLevel(level);
+                System.out.println("Starting Level "+i+" has validation "+validLevel);
+            }
+            levels[i] = level;
+        }
+        return levels;
+    }
+
 
     /**
      * Generate a playable mario level
      *
      * @param model contain a model of the level
      */
-    public String getGeneratedLevel(MarioLevelModel model, MarioTimer timer){
+    public String getSlicedLevel(MarioLevelModel model, MarioTimer timer){
 
         // INIT random
         Random r = new Random();
@@ -43,11 +81,9 @@ public class LevelGenerator implements MarioLevelGenerator{
         model.clearMap();
 
         // Get HashMap with SliceDistributions
-        HashMap<String, SliceDistribution> SliceDistributions = retrieveSliceDistributions();
         int length = SliceDistributions.size();
 
         // Get ArrayList with all slices
-        ArrayList<String> allSlices = retrieveAllSlices();
         int nSlices = allSlices.size();
 
         // Initialize an empty level of desired width
@@ -59,14 +95,12 @@ public class LevelGenerator implements MarioLevelGenerator{
         String marioSlice = "-------------MXX";
         String exitSlice = "-------------FXX";
 
-        level = setVerticalSlice(level, firstSlice, 0, width);
-        level = setVerticalSlice(level, firstSlice, 1, width);
-        level = setVerticalSlice(level, marioSlice, 2, width);
-        level = setVerticalSlice(level, firstSlice, 3, width);
-        level = setVerticalSlice(level, exitSlice, width-2, width);
-        level = setVerticalSlice(level, firstSlice, width-1, width);
-
-        System.out.println(level);
+        level = groupxutils.setVerticalSlice(level, firstSlice, 0);
+        level = groupxutils.setVerticalSlice(level, firstSlice, 1);
+        level = groupxutils.setVerticalSlice(level, marioSlice, 2);
+        level = groupxutils.setVerticalSlice(level, firstSlice, 3);
+        level = groupxutils.setVerticalSlice(level, exitSlice, width-2);
+        level = groupxutils.setVerticalSlice(level, firstSlice, width-1);
 
         // Set firstSlice to generate the first neighbour - via sampling the SliceDistributions
         String currentSlice = firstSlice;
@@ -90,13 +124,18 @@ public class LevelGenerator implements MarioLevelGenerator{
               boring = 0;
             }
 
-
-            level = setVerticalSlice(level, nextSlice, i, width);
+            level = groupxutils.setVerticalSlice(level, nextSlice, i);
             currentSlice = nextSlice;
 
         }
-        System.out.println(level);
+        //System.out.println(level);
         return level;
+    }
+
+    public String sampleNextSlice(String currentSlice) {
+        Random r = new Random();
+        int nSlices = allSlices.size();
+        return allSlices.get(r.nextInt(nSlices));
     }
 
     public String initializeEmptyLevel(int width){
@@ -199,8 +238,8 @@ public class LevelGenerator implements MarioLevelGenerator{
             // For each vertical slice, see it's immediate neighbour (to the right) and document it in the hashmap
             for(int j = 0; j < levelWidth-1; j++){
                 //Set current and immediate next slice
-                String currentSlice = getVerticalSlice(level, j, levelWidth);
-                String nextSlice = getVerticalSlice(level, j+1, levelWidth);
+                String currentSlice = groupxutils.getVerticalSlice(level, j);
+                String nextSlice = groupxutils.getVerticalSlice(level, j+1);
 
                 //if string contains mario start or exit, just skip it
                 if(nextSlice.contains("M") || nextSlice.contains("F")){
@@ -233,7 +272,7 @@ public class LevelGenerator implements MarioLevelGenerator{
             oos.writeObject(SliceDistributions);
             oos.close();
             fos.close();
-            System.out.printf("Serialized HashMap data is saved in "+projectxdir+"SliceDistributions.ser\n");
+            System.out.printf("Serialized HashMap data is saved in "+groupxdir+"SliceDistributions.ser\n");
         }catch(IOException ioe)
         {
             ioe.printStackTrace();
@@ -247,54 +286,13 @@ public class LevelGenerator implements MarioLevelGenerator{
             oos.writeObject(allSlices);
             oos.close();
             fos.close();
-            System.out.printf("Serialized ArrayList (allSlices data is saved in "+projectxdir+"allSlices.ser");
+            System.out.printf("Serialized ArrayList (allSlices data is saved in "+groupxdir+"allSlices.ser");
         }catch(IOException ioe)
         {
             ioe.printStackTrace();
         }
     }
 
-    public String getVerticalSlice(String level, int index, int width){
-
-        // Remove all 'newlines'
-        level = level.replace("\n", "").replace("\r", "");
-
-        // Notify if index is bigger than level
-        if(index > width){
-            System.out.println("XW: Index is out of bounds - getVerticalSlice()");
-        }
-
-        // Init vertical slice as a string
-        String slice = "";
-
-        // get all tiles in this vertical slice at the given horizontal index
-        for(int i = 0; i < 16; i++){
-            char tile = level.charAt(index + (i*width));
-            slice += Character.toString(tile);
-        }
-        return slice;
-    }
-
-    public String setVerticalSlice(String level, String slice, int index, int width){
-
-        // NOTE: Remember that level has 'newline' characters.
-
-        // Notify if index is bigger than level
-        if(index > width){
-            System.out.println("XW: Index is out of bounds - setVerticalSlice()");
-        }
-
-        // get all tiles in this vertical slice at the given horizontal index
-        for(int i = 0; i < 16; i++){
-            char c = slice.charAt(i);
-            String sliceTile = Character.toString(c);
-            int levelIndex = index + (i* (width+1));
-
-            level = level.substring(0, levelIndex) + sliceTile + level.substring(levelIndex+1);
-        }
-        return level;
-    }
-
     //Return the name of the level generator
-    public String getGeneratorName(){return "projectx";}
+    public String getGeneratorName(){return "groupx";}
 }

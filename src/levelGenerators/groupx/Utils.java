@@ -21,6 +21,48 @@ public class Utils {
 
     private ObjectInputStream ois;
 
+    public String getVerticalSlice(String level, int index){
+        //int width = level.length()/16;
+        int width = 151;
+        // Remove all 'newlines'
+        level = level.replace("\n", "").replace("\r", "");
+
+        // Notify if index is bigger than level
+        if(index > width){ System.out.println("XW: Index is out of bounds - getVerticalSlice()"); }
+
+        // Init vertical slice as a string
+        String slice = "";
+
+        // get all tiles in this vertical slice at the given horizontal index
+        for(int i = 0; i < 16; i++){
+            char tile = level.charAt(index + (i*width));
+            slice += Character.toString(tile);
+        }
+        return slice;
+    }
+
+    public String setVerticalSlice(String level, String slice, int index){
+
+        // NOTE: Remember that level has 'newline' characters.
+        //int width = (level.length())/16;
+        int width = 151;
+
+        // Notify if index is bigger than level
+        if(index > width){
+            System.out.println("XW: Index is out of bounds - setVerticalSlice()");
+        }
+
+        // get all tiles in this vertical slice at the given horizontal index
+        for(int i = 0; i < 16; i++){
+            char c = slice.charAt(i);
+            String sliceTile = Character.toString(c);
+            int levelIndex = index + (i* (width+1));
+
+            level = level.substring(0, levelIndex) + sliceTile + level.substring(levelIndex+1);
+        }
+        return level;
+    }
+
     // getAllAgentStats: Return Array of Stats for multiple agents over multiple levels.
     public MarioStatsX[] getAllAgentStats(MarioAgent agents[], String[] levels, int timer, int repsPerLevel){
         // Create and populate empty stats in the stats array
@@ -57,36 +99,20 @@ public class Utils {
     }
 
     // Take level String. Return whether it meets minimum validation requirements. Add to this criteria.
-    public boolean validLevel(String level,int timer,int repsPerLevel){
-        // Level needs to be winnable. Run a good agent on the level 2 times and see if it is:
-        MarioAgent agent = new agents.robinBaumgarten.Agent();
-        MarioStatsX stats = getAgentStats(agent,level,40,2);
-
-        if(stats.winRate == 0) {return false; }
-
-        // If none of the above the level is valid
-        return true;
-    }
-
-    public int evaluateLevel(String level, int evaluationMode){
-        // ToDo: Heuristics here needs to well thought through. Ones there currently are just for testing. Unlikely that
-        // win rate is a good metric because for any level it will always be 0 or 1.
-
-        // If level isn't valid, it scores 0% Similarity
-        if(validLevel(level,40,5) == false){ return 0; };
-        // If level is valid, score it according to whatever evaluationMode is being used
-        if(evaluationMode == 0){
-            // Optimise to put as many blocks in the level as possible, but keeping it winnable.
-            return level.length() - level.replace("X", "").length();
-        } else if(evaluationMode == 1){
-            // Fall back to % complete for a fairly poor agent. optimise the level to be easier.
-            MarioAgent agent = new agents.spencerSchumann.Agent();
-            MarioStatsX stats = getAgentStats(agent,level,40,2);
-            return Math.round(stats.percentageComplete);
-        } else {
-            System.out.println("MB Error: Mode "+ evaluationMode + " is not valid. Default to many blocks");
-            return 0;
+    public int validateLevel(String level){
+        // Return 150 if valid. Otherwise return issue location.
+        // Run agent througj t
+        if(level == null){
+            System.out.println("MB ERROR: Utils.validateLevel was passed a null level");
         }
+
+        MarioAgent agent = new agents.robinBaumgarten.Agent();
+        MarioStatsX stats = getAgentStats(agent,level,30,1);
+        if (stats.winRate == 1) { return 150; }
+
+        // Return the index where it failed
+        int issueLocation = (int) ((double)stats.percentageComplete * 150);
+        return issueLocation;
     }
 
     public void evaluateLevelBlocks(String level){
@@ -124,7 +150,7 @@ public class Utils {
         };
     }
 
-    public static MarioStatsX resultToStatsX(MarioResult result) {
+    public MarioStatsX resultToStatsX(MarioResult result) {
         return new MarioStatsX(result.getGameStatus(), result.getCompletionPercentage(),
                 result.getCurrentLives(), result.getCurrentCoins(), (int) Math.ceil(result.getRemainingTime() / 1000f),
                 result.getMarioMode(), result.getNumCollectedMushrooms(), result.getNumCollectedFireflower(),
@@ -133,4 +159,5 @@ public class Utils {
                 result.getMaxJumpAirTime(), result.getNumBumpBrick(), result.getNumBumpQuestionBlock(),
                 result.getMarioNumHurts());
     }
+
 }

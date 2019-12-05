@@ -14,7 +14,6 @@ public class PlayLevel {
         boolean visuals = true;
         boolean generateDifferentLevels = true;  // Each play through will be different
         String levelFile = null; //"levels/original/lvl-1.txt"
-        MarioAgent agent = new agents.robinBaumgarten.Agent();
         Utils groupxutils = new Utils();
 
         //XW: init projectXGenerator
