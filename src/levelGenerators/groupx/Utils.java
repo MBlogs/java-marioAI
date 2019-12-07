@@ -22,10 +22,10 @@ public class Utils {
     private ObjectInputStream ois;
 
     public String getVerticalSlice(String level, int index){
-        //int width = level.length()/16;
-        int width = 151;
+
         // Remove all 'newlines'
         level = level.replace("\n", "").replace("\r", "");
+        int width = level.length()/16;
 
         // Notify if index is bigger than level
         if(index > width){ System.out.println("XW: Index is out of bounds - getVerticalSlice()"); }
@@ -42,10 +42,10 @@ public class Utils {
     }
 
     public String setVerticalSlice(String level, String slice, int index){
-
         // NOTE: Remember that level has 'newline' characters.
-        //int width = (level.length())/16;
-        int width = 151;
+        //ToDo MB to XW: Check that minus 1 logic here makes sense.
+        // Did you design the original so that input was width of the level removing the new line characters?
+        int width = (level.length())/16 - 1;
 
         // Notify if index is bigger than level
         if(index > width){
@@ -119,36 +119,6 @@ public class Utils {
         // Input level string, output
     }
 
-    // Run all agents against the default levels. Save the results for use in evaluation metrics.
-    public MarioStatsX[] makeDefaultAgentStats(int timer, int repsPerLevel) {
-        MarioAgent[] agents = getAgents();
-        String[] defaultLevels = getDefaultLevels();
-        return getAllAgentStats(agents,defaultLevels,timer,repsPerLevel);
-    }
-
-    public String[] getDefaultLevels(){
-        String[] defaultLevels = new String[15];
-        for(int i=1;i<=15;i++){
-            String s = "levels/original/lvl-"+i+".txt";
-            defaultLevels[i-1] = getLevel(s, null);
-        }
-        return defaultLevels;
-    }
-
-    // Dictates the order of results returned in stats array.
-    // These are the best agents
-    public MarioAgent[] getAgents(){
-        return new MarioAgent[]{
-                //new agents.andySloane.Agent(),
-                //new agents.glennHartmann.Agent(),
-                //new agents.michal.Agent(),
-                new agents.robinBaumgarten.Agent(),
-                //new agents.sergeyKarakovskiy.Agent(),
-                //new agents.sergeyPolikarpov.Agent(),
-                new agents.spencerSchumann.Agent(),
-                //new agents.trondEllingsen.Agent()
-        };
-    }
 
     public MarioStatsX resultToStatsX(MarioResult result) {
         return new MarioStatsX(result.getGameStatus(), result.getCompletionPercentage(),

@@ -46,15 +46,14 @@ public class Optimizer {
     r:RED_KOOPA
     R:RED_KOOPA_WINGED
     */
-    public static final int INITIAL_LEVELS = 30; // levels to create initially
-
-    private static final int LEVEL_N = 5; // levels to carry over into new population
-    private static final String mutationBlocks = "X#%@!SCULoyYgkKrR";
+    public static final int INITIAL_LEVELS = 15; // levels to create initially
+    private static final int LEVEL_N = 5; // levels to carry over into new populations
+    private static final String mutationBlocks = "#%@!SCULoyYgkKrR";
     private static final String HEURISTIC = "blocks";
-    private static final int CROSSOVERS = 2; // crossovers in the mutation stage
+    private static final int CROSSOVERS = 3; // crossovers in the mutation stage
     private static final int MUTATION_N = 15; // How many additional mutated levels to generate in each population
-    private static final double MUTATION_RATE = 0.05; //Chances of a mutation (at a block level).
-    private static final int ITERATIONS = 10; // Total iterations
+    private static final double MUTATION_RATE = 0.01; //Chances of a mutation (at a block level).
+    private static final int ITERATIONS = 5; // Total iterations
 
     private int TWEAK_RANGE = 2;//When trying to fix a level, how many slices either side of problem point to tweak?
 
@@ -64,6 +63,7 @@ public class Optimizer {
     }
 
     public String runOptimization(String[] levels, LevelGenerator generator){
+        // Give a set of starting levels. Run optimisation process and return best level.
         for(int i = 0; i<ITERATIONS;i++){
             String[] candidateLevels = generateCandidateLevels(levels);
             double[] fitnesses = evaluateEveryLevel(candidateLevels);
@@ -131,7 +131,6 @@ public class Optimizer {
     }
 
     private String tweakLevel(String level, int issueLocation, LevelGenerator generator){
-        //ToDO: What is the best way of tweaking the level?
         for(int i=issueLocation-TWEAK_RANGE;i<issueLocation+TWEAK_RANGE;i++){
             String currentSlice = groupxutils.getVerticalSlice(level,i);
             String newSlice = generator.sampleNextSlice(currentSlice);
@@ -193,45 +192,44 @@ public class Optimizer {
             //System.out.println("getCrossLevel. Level2 is:");
             //System.out.println(level2);
             crossoverPoints[i] = random.nextInt(level1.length()/16);
-            System.out.println("getCrossLevel. Crossover point is: "+crossoverPoints[i]);
+
         }
-        System.out.println("That was all crossover points");
         // Sort cross over points
         Arrays.sort(crossoverPoints);
         // Cross into level1 sections of level2
         for (int c=0;c<crossoverPoints.length-1;c+=2){
+            System.out.println("getCrossLevel. Crossover point is: "+crossoverPoints[c]);
             for(int i = crossoverPoints[c]; i < crossoverPoints[c]-1; i++){
                 String slice = groupxutils.getVerticalSlice(level2,i);
                 level1 = groupxutils.setVerticalSlice(level1,slice,i);
             }
         }
-
         return mutate(level1);
+
     }
 
     private String mutate(String level) {
-        //ToDo: Decision: Should we or shouldn't we mutate within a slice here?
-        // Mutate with probability 1/n
-        int width = 151;
+        //ToDo: Mutation should be a bit better here
+        int fullWidth = level.length();
         char[] levelBlocks = level.toCharArray();
 
         for (int i = 0; i < level.length(); i++) {
             //Mutation strategy: If this block, one above, or one below is an acceptable one to mutate
-            //ToDO: This mutation strategy could be improved.
             String thisBlock = Character.toString(levelBlocks[i]);
             String belowBlock = "";
-            if(i+width > 0 && i+width < level.length()){ belowBlock = Character.toString(levelBlocks[i+width]); }
+            if(i+fullWidth > 0 && i+fullWidth < level.length()){ belowBlock = Character.toString(levelBlocks[i+fullWidth]); }
 
             if (mutationBlocks.contains(thisBlock)) {
                 if(!thisBlock.equals("\n") && !belowBlock.equals("\n")) {
                     if (random.nextDouble() < MUTATION_RATE) {
                         levelBlocks[i] = mutationBlocks.charAt(random.nextInt(mutationBlocks.length()));
-                        System.out.println("Mutating. " + thisBlock + " became " + Character.toString(levelBlocks[i]));
+                        //System.out.println("Mutating. " + thisBlock + " became " + Character.toString(levelBlocks[i]));
                     }
                 }
             }
 
         }
+        System.out.println("mutateLevel. Mutated the level");
         return String.valueOf(levelBlocks);
     }
 
