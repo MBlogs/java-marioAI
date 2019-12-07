@@ -38,23 +38,27 @@ public class PlayLevel {
         // Display the entire level.
 //        game.buildWorld(level, 1);
 
+        SimulationHeuristicX x = new SimulationHeuristicX();
+        System.out.println(x.getScore(level));
+
         // Repeat the game several times, maybe.
         int playAgain = 0;
         while (playAgain == 0) {  // 0 - play again! 1 - end execution.
 
             // Play the level, either as a human ...
-            MarioResult result = game.playGame(level, 200, 0);
+            //MarioResult result = game.playGame(level, 200, 0);
 
             // ... Or with an AI agent
-            //MarioResult result = game.runGame(agent, level, 20, 0, visuals);
+            MarioResult result = game.runGame(agent, level, 20, 0, visuals);
 
             // Print the results of the game
             System.out.println(result.getGameStatus().toString());
-//            System.out.println(resultToStats(result).toString());
+            System.out.println(resultToStats(result).toString());
 
             if (generateDifferentLevels) {
                 level = generateLevel(generator);
             }
+
 
             // Check if we should play again.
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time

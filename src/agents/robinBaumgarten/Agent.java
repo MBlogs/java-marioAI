@@ -5,6 +5,10 @@ import engine.core.MarioForwardModel;
 import engine.helper.MarioTimer;
 import engine.helper.MarioActions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author RobinBaumgarten
  */
@@ -28,5 +32,4 @@ public class Agent implements MarioAgent {
     public String getAgentName() {
         return "RobinBaumgartenAgent";
     }
-
 }

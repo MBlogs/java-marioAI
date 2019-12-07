@@ -33,6 +33,15 @@ public class LevelGenerator implements MarioLevelGenerator{
 
         // INIT random
         Random r = new Random();
+        //Store a random seed
+        long range = 123456789L;
+        long seed = (long)(r.nextDouble()*range);
+        //seed = 12640999;
+
+        //Set the Random object seed
+        r.setSeed(seed);
+        //Wonder what the seed is to reproduce something?
+        System.out.println("Level Seed is: "+seed);
 
         // Clear the map
         model.clearMap();
@@ -54,14 +63,13 @@ public class LevelGenerator implements MarioLevelGenerator{
         String marioSlice = "-------------MXX";
         String exitSlice = "-------------FXX";
 
+        // Set preliminary slices
         level = setVerticalSlice(level, firstSlice, 0, width);
         level = setVerticalSlice(level, firstSlice, 1, width);
         level = setVerticalSlice(level, marioSlice, 2, width);
         level = setVerticalSlice(level, firstSlice, 3, width);
         level = setVerticalSlice(level, exitSlice, width-2, width);
         level = setVerticalSlice(level, firstSlice, width-1, width);
-
-        System.out.println(level);
 
         // Set firstSlice to generate the first neighbour - via sampling the SliceDistributions
         String currentSlice = firstSlice;
@@ -72,7 +80,7 @@ public class LevelGenerator implements MarioLevelGenerator{
 
         for(int i = 4; i < 148; i++){
             SliceDistribution temp = SliceDistributions.get(currentSlice);
-            nextSlice = temp.sample();
+            nextSlice = temp.sample(r);
 
             // check boringness
             if(nextSlice.equals(currentSlice)) boring+=1;
