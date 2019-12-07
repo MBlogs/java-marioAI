@@ -48,17 +48,20 @@ public class Optimizer {
     public static final int INITIAL_LEVELS = 30; // levels to create initially
     private final int LEVEL_N = 10; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
     private final String mutationBlocks = "#%@!SCULoyYgkKrR-";
-    private final String HEURISTIC = "blocks";
-    private final int MUTATION_N = 40; // How many additional mutated levels to generate in each population
+    private final String HEURISTIC = "simulation"; //blocks
+    private final int MUTATION_N = 30; // How many additional mutated levels to generate in each population
     private final int CROSSOVERS = 3; // level crossovers in the mutation stage
-    private final double MUTATION_SLICE_RATE = 0.1; //Chances of a slice mutation
-    private final double MUTATION_TILE_RATE = 0.2; //Chance of a tile mutation within a slice mutation
+    private final double MUTATION_SLICE_RATE = 0.2; //Chances of a slice mutation
+    private final double MUTATION_TILE_RATE = 0.4; //Chance of a tile mutation within a slice mutation
     private final int ITERATIONS = 30; // Total iterations
-    private final int ISSUE_TWEAK_RANGE = 2;//When trying to fix a level, how many slices either side of problem point to tweak?
+    private final int ISSUE_TWEAK_RANGE = 3;//When trying to fix a level, how many slices either side of problem point to tweak?
+
+    private SimulationHeuristicX simulationHeuristicX;
 
     public Optimizer() {
         random = new Random();
         groupxutils = new Utils();
+        simulationHeuristicX = new SimulationHeuristicX();
     }
 
     public String runOptimization(String[] levels, LevelGenerator generator){
@@ -86,6 +89,7 @@ public class Optimizer {
         // ToDo: Heuristics here needs to well thought through. Ones there currently are just for testing.
         double fitness = 0.0;
         if(HEURISTIC.equals("blocks")){ fitness = evaluateLevelByBlocks(level); }
+        if(HEURISTIC.equals("simulation")){fitness = -simulationHeuristicX.getScore(level); }
         else { System.out.println("MB: The following isn't a valid evaluation function: "+HEURISTIC); }
 
         return fitness;
