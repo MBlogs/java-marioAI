@@ -136,7 +136,7 @@ public class LevelGenerator implements MarioLevelGenerator{
         return level;
     }
 
-    public String sampleNextSlice(String currentSlice) {
+    public String sampleNextSlice() {
         Random r = new Random();
         int nSlices = allSlices.size();
         return allSlices.get(r.nextInt(nSlices));
@@ -259,6 +259,11 @@ public class LevelGenerator implements MarioLevelGenerator{
                     SliceDistributions.put(currentSlice, temp);
                 }
             }
+        }
+
+        // Add normal slice to every hashmap entry to even out distributions and prevent repetitions
+        for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
+            SliceDistributions.get(entry.getKey()).update("--------------XX");
         }
 
         ArrayList<String> allSlices = new ArrayList<>();

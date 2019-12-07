@@ -25,7 +25,6 @@ public class Optimizer {
     private Utils groupxutils;
 
     //ToDo Decide on which blocks are allowed to be a mutation (eg. some of these will be bad).
-
     /* Mutation blocks:
     -:AIR
     X:FLOOR
@@ -46,16 +45,16 @@ public class Optimizer {
     r:RED_KOOPA
     R:RED_KOOPA_WINGED
     */
-    public static final int INITIAL_LEVELS = 15; // levels to create initially
-    private static final int LEVEL_N = 5; // levels to carry over into new populations
-    private static final String mutationBlocks = "#%@!SCULoyYgkKrR";
-    private static final String HEURISTIC = "blocks";
-    private static final int CROSSOVERS = 3; // crossovers in the mutation stage
-    private static final int MUTATION_N = 15; // How many additional mutated levels to generate in each population
-    private static final double MUTATION_RATE = 0.01; //Chances of a mutation (at a block level).
-    private static final int ITERATIONS = 5; // Total iterations
-
-    private int TWEAK_RANGE = 2;//When trying to fix a level, how many slices either side of problem point to tweak?
+    public static final int INITIAL_LEVELS = 30; // levels to create initially
+    private final int LEVEL_N = 10; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
+    private final String mutationBlocks = "#%@!SCULoyYgkKrR-";
+    private final String HEURISTIC = "blocks";
+    private final int MUTATION_N = 40; // How many additional mutated levels to generate in each population
+    private final int CROSSOVERS = 3; // level crossovers in the mutation stage
+    private final double MUTATION_SLICE_RATE = 0.1; //Chances of a slice mutation
+    private final double MUTATION_TILE_RATE = 0.2; //Chance of a tile mutation within a slice mutation
+    private final int ITERATIONS = 30; // Total iterations
+    private final int ISSUE_TWEAK_RANGE = 2;//When trying to fix a level, how many slices either side of problem point to tweak?
 
     public Optimizer() {
         random = new Random();
@@ -110,36 +109,33 @@ public class Optimizer {
             int issueLocation = groupxutils.validateLevel(candidateLevel);
 
             // If there is an issue try to fix it.
-            if(issueLocation < 150-TWEAK_RANGE){
+            if(issueLocation < 150-ISSUE_TWEAK_RANGE){
                 System.out.println("selectLevels. Trying to fix the level:"+levelCandidate);
-                candidateLevel = tweakLevel(candidateLevel,issueLocation,generator);
+                candidateLevel = tweakLevel(candidateLevel,issueLocation,ISSUE_TWEAK_RANGE,generator);
             }
-
             // If 150, it is a valid level
             if(issueLocation == 150){
                 System.out.println("selectLevels. Level number: "+levelCandidate+" was accepted, with fitness "+fitnesses[levelCandidate]);
                 validLevels[numValidLevels] = candidateLevel;
                 numValidLevels++;
+            } else {
+                System.out.println("selectLevels. Level number: " + levelCandidate + " was rejected, with fitness " + fitnesses[levelCandidate]);
             }
-
             levelCandidate++;
         }
-
-
 
         return validLevels;
     }
 
-    private String tweakLevel(String level, int issueLocation, LevelGenerator generator){
-        for(int i=issueLocation-TWEAK_RANGE;i<issueLocation+TWEAK_RANGE;i++){
+    private String tweakLevel(String level, int tweakLocation,int tweakRange, LevelGenerator generator){
+        for(int i=tweakLocation-tweakRange;i<tweakLocation+tweakRange;i++){
             String currentSlice = groupxutils.getVerticalSlice(level,i);
-            String newSlice = generator.sampleNextSlice(currentSlice);
+            String newSlice = generator.sampleNextSlice();
             level = groupxutils.setVerticalSlice(level,newSlice,i);
         }
 
         return level;
     }
-
 
     private void sortLevelsByFitness(String[] levels,double[] fitnesses){
         // Sort both arrays by bubble sorting.
@@ -213,24 +209,58 @@ public class Optimizer {
         int fullWidth = level.length();
         char[] levelBlocks = level.toCharArray();
 
-        for (int i = 0; i < level.length(); i++) {
-            //Mutation strategy: If this block, one above, or one below is an acceptable one to mutate
-            String thisBlock = Character.toString(levelBlocks[i]);
-            String belowBlock = "";
-            if(i+fullWidth > 0 && i+fullWidth < level.length()){ belowBlock = Character.toString(levelBlocks[i+fullWidth]); }
+        /*
+        Mutation strategy:
+        Get neighbouring slices
+        Copy a neighbour, if both valid mutation tiles
+        */
+        for (int i = 3; i < level.length()/16 - 2; i++) {
 
-            if (mutationBlocks.contains(thisBlock)) {
-                if(!thisBlock.equals("\n") && !belowBlock.equals("\n")) {
-                    if (random.nextDouble() < MUTATION_RATE) {
-                        levelBlocks[i] = mutationBlocks.charAt(random.nextInt(mutationBlocks.length()));
-                        //System.out.println("Mutating. " + thisBlock + " became " + Character.toString(levelBlocks[i]));
+            if (random.nextDouble() < MUTATION_SLICE_RATE) {
+                // Get the previous, current and next slice
+                String prevSlice = groupxutils.getVerticalSlice(level,i-1);
+                String currentSlice = groupxutils.getVerticalSlice(level,i);
+                String nextSlice = groupxutils.getVerticalSlice(level,i+1);
+
+                int sliceLength = 16;
+
+                // For each tile in current slice, decide whether to steal a neighbour tile
+                for (int j = 0; j<sliceLength-1;j++)
+                    if (random.nextDouble()<MUTATION_TILE_RATE){
+                        // Steal the tile in a random direction. Use max and min to not exceed arrays
+                        char tileChar = currentSlice.charAt(j);
+                        char tileMutationChar = tileChar;
+                        int randomDirection = random.nextInt(4);
+
+                        // Get candidate mutation tile from surrounding tiles.
+                        if(randomDirection==0) {
+                            tileMutationChar = currentSlice.charAt(Math.max(0, j - 1));
+                        } else if((randomDirection==1)) {
+                            tileMutationChar = nextSlice.charAt(j);
+                        } else if(randomDirection==2) {
+                            tileMutationChar = prevSlice.charAt(j);;
+                        } else {
+                            tileMutationChar = currentSlice.charAt(Math.min(j+1,sliceLength-1));
+                        }
+
+                        String tileString = Character.toString(tileChar);
+                        String tileMutationString = Character.toString(tileMutationChar);
+
+                        // If both the current block and the new block are valid mutation blocks, do it.
+                        if(mutationBlocks.contains(tileMutationString) && mutationBlocks.contains(tileString)){
+                            if(tileChar != '\n' && tileMutationChar != '\n'){
+                                // Update current slice with the new tile
+                                currentSlice = currentSlice.substring(0,j) + tileMutationString + currentSlice.substring(j+1);
+                                level = groupxutils.setVerticalSlice(level,currentSlice,i);
+                                if(tileChar != tileMutationChar){System.out.println("Mutating. " + tileString + " became " + tileMutationString);}
+                            }
+                        }
                     }
-                }
             }
 
         }
         System.out.println("mutateLevel. Mutated the level");
-        return String.valueOf(levelBlocks);
+        return level;
     }
 
     private void printLevelFitnesses(String[] levels, double[] fitnesses){
@@ -240,6 +270,4 @@ public class Optimizer {
         }
 
     }
-
-
 }
