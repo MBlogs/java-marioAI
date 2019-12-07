@@ -25,6 +25,7 @@ public class LevelGenerator implements MarioLevelGenerator{
     private HashMap<String, SliceDistribution> SliceDistributions = null;
     ArrayList<String> allSlices = null;
 
+
     // Constructor
     public LevelGenerator(){
         this.workingdir = System.getProperty("user.dir");
@@ -37,29 +38,31 @@ public class LevelGenerator implements MarioLevelGenerator{
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
         // Step 1: Initialisation.
-        System.out.println("Step 1: generating starting levels...");
         String[] levels = initialiseLevels();
-        // Step 2: Optimisation
-        optimizer.runOptimization(levels,this);
-        System.out.println(levels[0]);
-        return levels[0];
+        levels = optimizer.selectLevels(levels,optimizer.evaluateEveryLevel(levels),this);
+
+        // Step 2: Optimisation process
+        String level = optimizer.runOptimization(levels,this);
+        System.out.println(level);
+        return level;
     }
 
     public String[] initialiseLevels(){
         // Intitialise a set of levels through slice distribtion.
-        String[] levels = new String[Optimizer.LEVEL_N];
+        System.out.println("Initializing starting levels...");
+        String[] levels = new String[Optimizer.INITIAL_LEVELS];
         String level = "";
 
         MarioLevelModel levelModel = new MarioLevelModel(150, 16);
         MarioTimer timer = new MarioTimer(5 * 60 * 60 * 1000);
 
-        for (int i = 0; i<Optimizer.LEVEL_N; i++){
+        for (int i = 0; i<Optimizer.INITIAL_LEVELS; i++){
             int validLevel = 0;
 
             while(validLevel != 150){
                 level = getSlicedLevel(levelModel,timer);
                 validLevel = groupxutils.validateLevel(level);
-                System.out.println("Starting Level "+i+" has validation "+validLevel);
+                System.out.println("Initialisation Level "+i+" has validation "+validLevel);
             }
             levels[i] = level;
         }

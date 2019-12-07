@@ -25,14 +25,38 @@ public class Optimizer {
     private Utils groupxutils;
 
     //ToDo Decide on which blocks are allowed to be a mutation (eg. some of these will be bad).
-    private static final String mutationBlocks = "X#%|!12SCULoYyGgKkRr";
+
+    /* Mutation blocks:
+    -:AIR
+    X:FLOOR
+    #:PYRAMID_BLOCK
+    %:JUMP_THROUGH_BLOCK
+    @: MUSHROOM_BLOCK
+    !:COIN_QUESTION_BLOCK
+    S: NORMAL_BLOCK
+    C: COIN_BLOCK
+    U: MUSHROOM_BLOCK
+    L: 1UP_BLOCK
+    o: COIN
+    y:SPIKY
+    Y:SPIKY_WINGED
+    g:GOOMBA
+    k:GREEN_KOOPA
+    K:GREEN_KOOPA_WINGED
+    r:RED_KOOPA
+    R:RED_KOOPA_WINGED
+    */
+    public static final int INITIAL_LEVELS = 30; // levels to create initially
+
+    private static final int LEVEL_N = 5; // levels to carry over into new population
+    private static final String mutationBlocks = "X#%@!SCULoyYgkKrR";
     private static final String HEURISTIC = "blocks";
-    private static final int CROSSOVERS = 3;
-    public static final int LEVEL_N = 2;
-    private static final int MUTATION_N = 1;
-    private static final double MUTATION_RATE = 0.01;
-    private static final int ITERATIONS = 5;
-    private int TWEAK_RANGE = 2;//Slices either side of this one to adjust.
+    private static final int CROSSOVERS = 2; // crossovers in the mutation stage
+    private static final int MUTATION_N = 15; // How many additional mutated levels to generate in each population
+    private static final double MUTATION_RATE = 0.05; //Chances of a mutation (at a block level).
+    private static final int ITERATIONS = 10; // Total iterations
+
+    private int TWEAK_RANGE = 2;//When trying to fix a level, how many slices either side of problem point to tweak?
 
     public Optimizer() {
         random = new Random();
@@ -44,7 +68,8 @@ public class Optimizer {
             String[] candidateLevels = generateCandidateLevels(levels);
             double[] fitnesses = evaluateEveryLevel(candidateLevels);
             levels = selectLevels(candidateLevels,fitnesses,generator);
-            System.out.println("Finished Full Optimization Iteration: "+i);
+            System.out.println(" Finished Optimization Iteration: ("+i+" /"+ITERATIONS+")");
+            System.out.println("\n");
         }
         return levels[0];
     }
@@ -59,7 +84,7 @@ public class Optimizer {
     }
 
     public double evaluateLevel(String level){
-        // ToDo: Heuristics here needs to well thought through. Ones there currently are just for testing. Unlikely that
+        // ToDo: Heuristics here needs to well thought through. Ones there currently are just for testing.
         double fitness = 0.0;
         if(HEURISTIC.equals("blocks")){ fitness = evaluateLevelByBlocks(level); }
         else { System.out.println("MB: The following isn't a valid evaluation function: "+HEURISTIC); }
@@ -69,7 +94,7 @@ public class Optimizer {
 
     public int evaluateLevelByBlocks(String level){
         // Count number of blocks
-        return level.length() - level.replace("X", "").length();
+        return level.length() - level.replace("#", "").length();
     }
 
     public String[] selectLevels(String[] candidateLevels,double[] fitnesses, LevelGenerator generator){
@@ -78,27 +103,30 @@ public class Optimizer {
         int numValidLevels = 0;
         int levelCandidate = 0;
         sortLevelsByFitness(candidateLevels,fitnesses);
+        printLevelFitnesses(candidateLevels, fitnesses);
 
         while(numValidLevels<LEVEL_N){
             String candidateLevel = candidateLevels[levelCandidate];
-            System.out.println("selectLevels. Selection Phase. Following level is being validated:"+numValidLevels+" and has size "+candidateLevel.length());
-            System.out.println(candidateLevel);
             int issueLocation = groupxutils.validateLevel(candidateLevel);
 
             // If there is an issue try to fix it.
             if(issueLocation < 150-TWEAK_RANGE){
-                System.out.println("selectLevels. Trying to fix the level:"+numValidLevels);
+                System.out.println("selectLevels. Trying to fix the level:"+levelCandidate);
                 candidateLevel = tweakLevel(candidateLevel,issueLocation,generator);
             }
 
             // If 150, it is a valid level
             if(issueLocation == 150){
+                System.out.println("selectLevels. Level number: "+levelCandidate+" was accepted, with fitness "+fitnesses[levelCandidate]);
                 validLevels[numValidLevels] = candidateLevel;
                 numValidLevels++;
             }
 
             levelCandidate++;
         }
+
+
+
         return validLevels;
     }
 
@@ -115,9 +143,11 @@ public class Optimizer {
 
 
     private void sortLevelsByFitness(String[] levels,double[] fitnesses){
+        // Sort both arrays by bubble sorting.
         for (int i = 0; i < fitnesses.length; i++) {
             for (int j = i + 1; j < fitnesses.length; j++) {
-                if (fitnesses[i] > fitnesses[j]) {
+                // Ascending
+                if (fitnesses[i] < fitnesses[j]) {
                     double tempFit = fitnesses[i];
                     String tempLevel = levels[i];
                     fitnesses[i] = fitnesses[j];
@@ -144,21 +174,24 @@ public class Optimizer {
 
     public String getCrossOverLevel(String[] levels) {
         // Select two random levels to crossover
-        String level1 = levels[random.nextInt(levels.length)];
-        String level2 = levels[random.nextInt(levels.length)];
+        int randLevel1 = random.nextInt(levels.length);
+        int randLevel2 = random.nextInt(levels.length);
+
+        String level1 = levels[randLevel1];
+        String level2 = levels[randLevel2];
+
+        System.out.println("getCrossLevel chose levels "+ randLevel1+ " and "+randLevel2);
 
         // Determine crossover points
         int[] crossoverPoints = new int[CROSSOVERS];
         for(int i=0;i<CROSSOVERS;i++){
             if(level1 == null){
-                System.out.println("Level is null");
+                System.out.println("getCrossLevel. Level is null");
             }
-            System.out.println("getCrossLevel. Level1 size is: "+level1.length());
-            System.out.println("getCrossLevel. Level2 size is: "+level2.length());
-            System.out.println("Level1 is:");
-            System.out.println(level1);
-            System.out.println("Level2 is:");
-            System.out.println(level2);
+            //System.out.println("getCrossLevel. Level1 is:");
+            //System.out.println(level1);
+            //System.out.println("getCrossLevel. Level2 is:");
+            //System.out.println(level2);
             crossoverPoints[i] = random.nextInt(level1.length()/16);
             System.out.println("getCrossLevel. Crossover point is: "+crossoverPoints[i]);
         }
@@ -179,14 +212,35 @@ public class Optimizer {
     private String mutate(String level) {
         //ToDo: Decision: Should we or shouldn't we mutate within a slice here?
         // Mutate with probability 1/n
+        int width = 151;
         char[] levelBlocks = level.toCharArray();
 
         for (int i = 0; i < level.length(); i++) {
-            if (random.nextDouble() < MUTATION_RATE) {
-                levelBlocks[i] = mutationBlocks.charAt(random.nextInt(mutationBlocks.length()));
+            //Mutation strategy: If this block, one above, or one below is an acceptable one to mutate
+            //ToDO: This mutation strategy could be improved.
+            String thisBlock = Character.toString(levelBlocks[i]);
+            String belowBlock = "";
+            if(i+width > 0 && i+width < level.length()){ belowBlock = Character.toString(levelBlocks[i+width]); }
+
+            if (mutationBlocks.contains(thisBlock)) {
+                if(!thisBlock.equals("\n") && !belowBlock.equals("\n")) {
+                    if (random.nextDouble() < MUTATION_RATE) {
+                        levelBlocks[i] = mutationBlocks.charAt(random.nextInt(mutationBlocks.length()));
+                        System.out.println("Mutating. " + thisBlock + " became " + Character.toString(levelBlocks[i]));
+                    }
+                }
             }
+
         }
         return String.valueOf(levelBlocks);
+    }
+
+    private void printLevelFitnesses(String[] levels, double[] fitnesses){
+        System.out.println("Start of selectLevels. Following list of levels and fitnesses");
+        for(int i =0; i<levels.length; i++){
+            System.out.println("Level "+i+" has fitness "+fitnesses[i]);
+        }
+
     }
 
 
