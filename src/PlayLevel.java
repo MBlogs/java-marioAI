@@ -35,9 +35,9 @@ public class PlayLevel {
         // Repeat the game several times, maybe.
         int playAgain = 0;
         while (playAgain == 0) {
-
             // Play the level, either as a human ...
             MarioResult result = game.playGame(level, 0, 0);
+
             // ... Or with an AI agent
             //MarioResult result = game.runGame(agent, level, 40, 0, visuals);
 

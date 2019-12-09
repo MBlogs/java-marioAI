@@ -65,6 +65,10 @@ public class SliceDistribution implements Serializable  {
         return "";
     }
 
+    public int Size(){
+        return this.totalSize;
+    }
+
     /*
     //Returns a sampled action from this particular ActionDistribution
     public int sampleAction(){

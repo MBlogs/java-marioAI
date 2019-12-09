@@ -108,17 +108,16 @@ public class Utils {
 
         MarioAgent agent = new agents.robinBaumgarten.Agent();
         MarioStatsX stats = getAgentStats(agent,level,30,1);
-        if (stats.winRate == 1) { return 150; }
-
-        // Return the index where it failed
-        int issueLocation = (int) ((double)stats.percentageComplete * 150);
-        return issueLocation;
+        // Only give 150 validation if it won and didn't do a long x jump
+        if (stats.winRate == 1 && stats.maxXjump < 90) { return 150; }
+        // If it won (so fails validation only due to jump length) make sure to not return 150
+        else if(stats.winRate == 1) { return 149; }
+        else {
+            // Return the index where it failed for use in tweakLevel
+            int issueLocation = (int) ((double)stats.percentageComplete * 150);
+            return issueLocation;
+        }
     }
-
-    public void evaluateLevelBlocks(String level){
-        // Input level string, output
-    }
-
 
     public MarioStatsX resultToStatsX(MarioResult result) {
         return new MarioStatsX(result.getGameStatus(), result.getCompletionPercentage(),

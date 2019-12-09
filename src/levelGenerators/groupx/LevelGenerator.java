@@ -35,39 +35,17 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
+        // Step 0: Retrieve the pre-built distributions
+        this.SliceDistributions = retrieveSliceDistributions();
+        this.allSlices = retrieveAllSlices();
         // Step 1: Initialisation.
-        String[] levels = initialiseLevels();
+        String[] levels = optimizer.initialiseLevels(this);
+        // Step 2: Evaluate initial levels and select the best
         levels = optimizer.selectLevels(levels,optimizer.evaluateEveryLevel(levels),this);
-
-        // Step 2: Optimisation process
+        // Step 3: Repeat Evolutionary Optimisation process
         String level = optimizer.runOptimization(levels,this);
         System.out.println(level);
         return level;
-    }
-
-    public String[] initialiseLevels(){
-        this.SliceDistributions = retrieveSliceDistributions();
-        this.allSlices = retrieveAllSlices();
-
-        // Intitialise a set of levels through slice distribtion.
-        System.out.println("Initializing starting levels...");
-        String[] levels = new String[Optimizer.INITIAL_LEVELS];
-        String level = "";
-
-        MarioLevelModel levelModel = new MarioLevelModel(150, 16);
-        MarioTimer timer = new MarioTimer(5 * 60 * 60 * 1000);
-
-        for (int i = 0; i<Optimizer.INITIAL_LEVELS; i++){
-            int validLevel = 0;
-
-            while(validLevel != 150){
-                level = getSlicedLevel(levelModel,timer);
-                validLevel = groupxutils.validateLevel(level);
-                System.out.println("Initialisation Level "+i+" has validation "+validLevel);
-            }
-            levels[i] = level;
-        }
-        return levels;
     }
 
 
@@ -117,10 +95,11 @@ public class LevelGenerator implements MarioLevelGenerator{
             SliceDistribution temp = SliceDistributions.get(currentSlice);
             nextSlice = temp.sample();
 
-            // check boringness
+            // Make sure level isn't getting boring (many slices same type in a row)
             if(nextSlice.equals(currentSlice)) boring+=1;
             else boring = 0;
 
+            // If it's getting boring, sample a random slice instead.
             if(boring == 6){
               while(nextSlice.equals(currentSlice)){
                   nextSlice = allSlices.get(r.nextInt(nSlices));
@@ -136,10 +115,20 @@ public class LevelGenerator implements MarioLevelGenerator{
         return level;
     }
 
-    public String sampleNextSlice() {
+    public String sampleRandomSlice() {
         Random r = new Random();
         int nSlices = allSlices.size();
         return allSlices.get(r.nextInt(nSlices));
+    }
+
+    public String sampleNextSlice(String slice){
+        // If it's a known slice, return from sample. Else return random.
+        if(SliceDistributions.containsKey(slice)){
+            return SliceDistributions.get(slice).sample();
+        } else {
+            return sampleRandomSlice();
+        }
+
     }
 
     public String initializeEmptyLevel(int width){
@@ -261,9 +250,15 @@ public class LevelGenerator implements MarioLevelGenerator{
             }
         }
 
-        // Add normal slice to every hashmap entry to even out distributions and prevent repetitions
+        // Add normal slice to 1 populated hashmap entries to even out distributions and prevent repetitions
         for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
+            // Add an escape when there are only a few options
+            //if(SliceDistributions.get(entry.getKey()).Size() <= 4) {}
             SliceDistributions.get(entry.getKey()).update("--------------XX");
+
+            //MB: THIS COULD BE REMOVED!!!! Make sure vanilla has all possible
+            SliceDistributions.get("--------------XX").update(entry.getKey());
+
         }
 
         ArrayList<String> allSlices = new ArrayList<>();
