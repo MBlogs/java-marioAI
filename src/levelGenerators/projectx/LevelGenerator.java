@@ -38,9 +38,9 @@ public class LevelGenerator implements MarioLevelGenerator{
         long seed = (long)(r.nextDouble()*range);
         //seed = 12640999;
 
-        //Set the Random object seed
+        // Set the Random object seed
         r.setSeed(seed);
-        //Wonder what the seed is to reproduce something?
+        //Print the seed - this will allow reproduction of the same level.
         System.out.println("Level Seed is: "+seed);
 
         // Clear the map
@@ -82,7 +82,7 @@ public class LevelGenerator implements MarioLevelGenerator{
             SliceDistribution temp = SliceDistributions.get(currentSlice);
             nextSlice = temp.sample(r);
 
-            // check boringness
+            // Check boringness
             if(nextSlice.equals(currentSlice)) boring+=1;
             else boring = 0;
 
@@ -92,7 +92,6 @@ public class LevelGenerator implements MarioLevelGenerator{
               }
               boring = 0;
             }
-
 
             level = setVerticalSlice(level, nextSlice, i, width);
             currentSlice = nextSlice;
@@ -138,7 +137,7 @@ public class LevelGenerator implements MarioLevelGenerator{
             return null;
         }
 
-        System.out.println("Deserialized HashMap..");
+        //System.out.println("Deserialized HashMap..");
 
         /* Display content using Iterator
         Set set = map.entrySet();
@@ -174,7 +173,7 @@ public class LevelGenerator implements MarioLevelGenerator{
             return null;
         }
 
-        System.out.println("Deserialized ArrayList..");
+        //System.out.println("Deserialized ArrayList..");
 
         return array;
     }
@@ -221,6 +220,27 @@ public class LevelGenerator implements MarioLevelGenerator{
             }
         }
 
+        // Add normal slice to every hashmap entry to even out distributions and prevent repetitions
+        //for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
+        //    SliceDistributions.get(entry.getKey()).update("--------------XX");
+        //}
+
+        // Hand-crafted tweaks to improve HashMap - this is so the generator does not get stuck in an infinite loop
+        // (i.e. producing the same pattern endlessly)
+        SliceDistributions.get("---SSSS--oS---XX").update("--------------XX");
+        SliceDistributions.get("---SSSS--oS--kXX").update("--------------XX");
+        SliceDistributions.get("---SSSSSSSS---XX").update("--------------XX");
+        SliceDistributions.get("---SSS---oS--kXX").update("--------------XX");
+        SliceDistributions.get("---SSS---oS---XX").update("--------------XX");
+        SliceDistributions.get("---SSCS--gSSSSXX").update("---SSSS--gSSSSXX");
+        SliceDistributions.get("---SSCS--gSSSSXX").update("--------------XX");
+        SliceDistributions.get("---SSSS--gSSSSXX").update("---SSCS--gSSSSXX");
+        SliceDistributions.get("---SSSS--gSSSSXX").update("--------------XX");
+        SliceDistributions.get("------S---S--gXX").update("--------------XX");
+        SliceDistributions.get("------Q---?--gXX").update("--------------XX");
+        SliceDistributions.get("----?---%|||%|||").update("--------------XX");
+
+        // Initialize array that stores unique vertical slices.
         ArrayList<String> allSlices = new ArrayList<>();
 
         // Make an array with all types of slices
@@ -228,7 +248,8 @@ public class LevelGenerator implements MarioLevelGenerator{
             allSlices.add(entry.getKey());
         }
 
-        // Saving both: SliceDistributions and AllSlices
+        // Saving both to disk
+        //slicedistribution
         try
         {
             FileOutputStream fos = new FileOutputStream(projectxdir+"SliceDistributions.ser");
@@ -259,7 +280,7 @@ public class LevelGenerator implements MarioLevelGenerator{
 
     public String getVerticalSlice(String level, int index, int width){
 
-        // Remove all 'newlines'
+        // Remove all 'newlines' characters
         level = level.replace("\n", "").replace("\r", "");
 
         // Notify if index is bigger than level
