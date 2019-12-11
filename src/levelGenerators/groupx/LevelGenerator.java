@@ -32,6 +32,8 @@ public class LevelGenerator implements MarioLevelGenerator{
         this.groupxdir = workingdir+"/src/levelGenerators/groupx/";
         this.groupxutils = new Utils();
         this.optimizer = new Optimizer();
+        this.SliceDistributions = retrieveSliceDistributions();
+        this.allSlices = retrieveAllSlices();
     }
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
@@ -46,8 +48,6 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     public String[] initialiseLevels(){
-        this.SliceDistributions = retrieveSliceDistributions();
-        this.allSlices = retrieveAllSlices();
 
         // Intitialise a set of levels through slice distribtion.
         System.out.println("Initializing starting levels...");

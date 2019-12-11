@@ -11,10 +11,13 @@ public class PlayLevel {
 
     public static void main(String[] args) {
         // Run settings:
-        boolean visuals = true;
+        boolean visuals = false;
         boolean generateDifferentLevels = false;  // Each play through will be different
         String levelFile = null; //"levels/original/lvl-1.txt"
         Utils groupxutils = new Utils();
+
+        Experiments e = new Experiments();
+        e.playabilityExperiment(2, 2);
 
         //XW: init projectXGenerator
         LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
@@ -27,7 +30,6 @@ public class PlayLevel {
 
         // Grab a level from file, found in directory "levels/" or pass null to generate a level automatically.
         String level = getLevel(levelFile, generator);
-        game.buildWorld(level, 1);
 
         // Display the entire level.
 //        game.buildWorld(level, 1);
@@ -43,7 +45,7 @@ public class PlayLevel {
 
             // Print the results of the game
             System.out.println(result.getGameStatus().toString());
-            //System.out.println(resultToStats(result).toString());
+            System.out.println(resultToStats(result).toString());
 
             if (generateDifferentLevels) { level = generateLevel(generator); }
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time
