@@ -47,8 +47,8 @@ public class SliceDistribution implements Serializable  {
         totalSize += 1;
     }
     
-    public String sample(){
-        int rand = new Random().nextInt(totalSize);
+    public String sample(Random r){
+        int rand = r.nextInt(totalSize);
         
         int currentSum = 0;
 

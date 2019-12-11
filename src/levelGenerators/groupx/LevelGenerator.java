@@ -24,16 +24,32 @@ public class LevelGenerator implements MarioLevelGenerator{
     private Optimizer optimizer;
     private HashMap<String, SliceDistribution> SliceDistributions = null;
     ArrayList<String> allSlices = null;
+    Random r;
 
 
     // Constructor
     public LevelGenerator(){
+        seed();
         this.workingdir = System.getProperty("user.dir");
         this.groupxdir = workingdir+"/src/levelGenerators/groupx/";
         this.groupxutils = new Utils();
-        this.optimizer = new Optimizer();
+        this.optimizer = new Optimizer(r);
         this.SliceDistributions = retrieveSliceDistributions();
         this.allSlices = retrieveAllSlices();
+    }
+
+    public void seed(){
+        this.r = new Random();
+        //Store a random seed
+        long range = 123456789L;
+        long seed = (long)(r.nextDouble()*range);
+        //seed = 58561945;
+
+        // Set the Random object seed
+        r.setSeed(seed);
+
+        //Print the seed - this will allow reproduction of the same level.
+        System.out.println("Level Seed is: "+seed);
     }
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
@@ -78,9 +94,6 @@ public class LevelGenerator implements MarioLevelGenerator{
      */
     public String getSlicedLevel(MarioLevelModel model, MarioTimer timer){
 
-        // INIT random
-        Random r = new Random();
-
         // Clear the map
         model.clearMap();
 
@@ -115,7 +128,7 @@ public class LevelGenerator implements MarioLevelGenerator{
 
         for(int i = 4; i < 148; i++){
             SliceDistribution temp = SliceDistributions.get(currentSlice);
-            nextSlice = temp.sample();
+            nextSlice = temp.sample(r);
 
             // check boringness
             if(nextSlice.equals(currentSlice)) boring+=1;
@@ -137,7 +150,6 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     public String sampleNextSlice() {
-        Random r = new Random();
         int nSlices = allSlices.size();
         return allSlices.get(r.nextInt(nSlices));
     }

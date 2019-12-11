@@ -23,6 +23,7 @@ public class PlayLevel {
         LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
         //generator.makeDistribution();
 
+
         if (levelFile == null && generator == null) { return; }
 
         MarioGame game = new MarioGame();

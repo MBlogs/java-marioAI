@@ -51,7 +51,7 @@ public class Experiments {
 
             // let the agent play
             for(int j = 1; j <= nIters; j++){
-                MarioResult result = game.runGame(agent, level, 40, 0, false);
+                MarioResult result = game.runGame(agent, level, 40, 0, true);
 
                 // get result
                 String winorloss = result.getGameStatus().toString();
