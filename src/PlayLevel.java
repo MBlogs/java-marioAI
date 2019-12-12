@@ -11,9 +11,9 @@ public class PlayLevel {
 
     public static void main(String[] args) {
         // Run settings:
-        boolean visuals = false;
+        boolean visuals = true;
         boolean generateDifferentLevels = false;  // Each play through will be different
-        String levelFile = "xlvl-4.txt";
+        String levelFile = null; //"src/levelGenerators/groupx/levels/xlvl-2.txt";
         Utils groupxutils = new Utils();
 
         //XW: init projectXGenerator

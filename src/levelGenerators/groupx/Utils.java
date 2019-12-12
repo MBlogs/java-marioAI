@@ -101,9 +101,8 @@ public class Utils {
     // Take level String. Return whether it meets minimum validation requirements. Add to this criteria.
     public int validateLevel(String level){
         // Return 150 if valid. Otherwise return issue location.
-        // Run agent througj t
         if(level == null){
-            System.out.println("MB ERROR: Utils.validateLevel was passed a null level");
+            System.out.println("Utils.validateLevel was passed a null level");
         }
 
         MarioAgent agent = new agents.robinBaumgarten.Agent();

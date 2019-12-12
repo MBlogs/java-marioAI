@@ -24,7 +24,6 @@ public class Experiments {
 
     // Constructor
     public Experiments(){
-
     }
 
     /**
@@ -128,7 +127,7 @@ public class Experiments {
 
     /**
      * This experiment outputs 2 starting levels and the result after several mutations.
-     * It is to be run with Optimizer config: LEVEL_N=2, INITIAL_LEVELS=5
+     * It is to be run with special Optimizer config: LEVEL_N=2, INITIAL_LEVELS=5, ITERATIONS = 1
      * When complete, the data generated is saved to file
      */
     public void visualMutationExperiment(){
@@ -156,20 +155,12 @@ public class Experiments {
         game.buildWorld(level,1);
     }
 
-    /*
-    public static final int INITIAL_LEVELS = 20; // levels to create initially
-    public final int LEVEL_N = 5; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
-    private final String MUTATION_BLOCKS = "#%@!SCULoyYgkKrR-";
-    private final String MUTATION_ENEMIES = "yYgkKrR";
-    private final String HEURISTIC = "simulationMore";//"simulation" "simulationMore";
-    public final int MUTATION_N = 10; // How many additional mutated levels to generate in each population
-    private final int CROSSOVERS = 4; // level crossovers in the mutation stage
-    private final double MUTATION_SLICE_RATE = 0.25; //Chances of a slice mutation
-    private final double MUTATION_TILE_RATE = 0.25; //Chance of a tile mutation within a slice mutation
-    private final int ITERATIONS = 10; // Total iterations
-    private final int ISSUE_TWEAK_RANGE = 4;//When trying to fix a level, how many slices either side of problem point to tweak?
+    /**
+     * This experiment created the 5 levels to use for Human Evaluation
+     * Levels are output to source folder in the format xlvl-n.txt
+     *
+     * @param nLevel : How many levels to create
      */
-
     public void createLevelsExperiment(int nLevel){
         LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
         Random r = new Random();
@@ -192,6 +183,7 @@ public class Experiments {
     }
 
     public void saveString(String stringToSave, String filename){
+        // Write string to file
         try(FileWriter fw = new FileWriter(filename, true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
@@ -204,6 +196,7 @@ public class Experiments {
 
 
     public void saveArray(String[] arrayToSave, String filename){
+        // Write array to file
         try(FileWriter fw = new FileWriter(filename, true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
@@ -217,8 +210,4 @@ public class Experiments {
         } catch (IOException e) {
         }
     }
-
-
-
-
 }

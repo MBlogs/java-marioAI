@@ -1,0 +1,11 @@
+Hello!
+
+The folder groupx should be copied into the folder levelGenerators.
+To generate levels, import the folder and call the LevelGenerator function:
+
+import levelGenerators.groupx.*;
+...
+LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
+String level = getLevel(levelFile, generator);
+
+

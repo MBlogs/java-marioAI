@@ -41,7 +41,8 @@ public class LevelGenerator implements MarioLevelGenerator{
         //Store a random seed
         long range = 123456789L;
         long seed = (long)(r.nextDouble()*range);
-        //seed = 58561945;
+        //..or fix the seed for replayability
+        // seed = 58561945;
 
         // Set the Random object seed
         r.setSeed(seed);
@@ -52,12 +53,12 @@ public class LevelGenerator implements MarioLevelGenerator{
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
         if(SliceDistributions == null){
-            // Step 0: Retrieve the pre-built distributions
+            // Step 0: Retrieve the pre-built slice distributions
             this.SliceDistributions = retrieveSliceDistributions();
             this.allSlices = retrieveAllSlices();
         }
 
-        // Step 1: Initialisation.
+        // Step 1: Initialisation
         String[] levels = optimizer.initialiseLevels(this);
         // Step 2: Evaluate initial levels and select the best
         levels = optimizer.selectLevels(levels,optimizer.evaluateEveryLevel(levels),this);
@@ -74,11 +75,10 @@ public class LevelGenerator implements MarioLevelGenerator{
      */
     public String getSlicedLevel(MarioLevelModel model, MarioTimer timer){
         if(SliceDistributions == null){
-            // Step 0: Retrieve the pre-built distributions
+            // Retrieve the pre-built slice distributions
             this.SliceDistributions = retrieveSliceDistributions();
             this.allSlices = retrieveAllSlices();
         }
-
 
         // Clear the map
         model.clearMap();
@@ -91,7 +91,7 @@ public class LevelGenerator implements MarioLevelGenerator{
         int width = 151;
         String level = initializeEmptyLevel(width);
 
-        // Set first slice - TODO: or get random
+        // Set first slice
         String firstSlice = "--------------XX";
         String marioSlice = "-------------MXX";
         String exitSlice = "-------------FXX";
@@ -130,17 +130,11 @@ public class LevelGenerator implements MarioLevelGenerator{
             currentSlice = nextSlice;
 
         }
-        //System.out.println(level);
         return level;
     }
 
     public String sampleRandomSlice() {
-        Random r = new Random();
-        int nSlices = allSlices.size();
-        return allSlices.get(r.nextInt(nSlices));
-    }
-
-    public String sampleNextSlice() {
+        // Random slice from all known slices
         int nSlices = allSlices.size();
         return allSlices.get(r.nextInt(nSlices));
     }
@@ -156,11 +150,9 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     public String initializeEmptyLevel(int width){
-        // width of width + 1 extra newline character at each line
         String emptyLevel = "";
 
         for(int i=0; i<16;i++){
-
             for(int j=0; j<width; j++){
                 emptyLevel += "-";
             }
@@ -171,7 +163,6 @@ public class LevelGenerator implements MarioLevelGenerator{
 
     // De-Serializes the SliceDistributions HashMap and returns it
     public HashMap<String, SliceDistribution> retrieveSliceDistributions(){
-
         HashMap<String, SliceDistribution> map = null;
         try
         {
@@ -193,15 +184,6 @@ public class LevelGenerator implements MarioLevelGenerator{
 
         System.out.println("Deserialized HashMap..");
 
-        /* Display content using Iterator
-        Set set = map.entrySet();
-        Iterator iterator = set.iterator();
-        while(iterator.hasNext()) {
-            Map.Entry mentry = (Map.Entry)iterator.next();
-            System.out.print("key: "+ mentry.getKey() + " & Value: ");
-            System.out.println(mentry.getValue());
-        }
-        */
         return map;
     }
 
@@ -232,8 +214,8 @@ public class LevelGenerator implements MarioLevelGenerator{
         return array;
     }
 
+    /// Creates the distributions from the original files (from scratch)
     public void makeDistribution(){
-
         // Set paths to working directory and mario levels
         String levelFilenamePrefix = workingdir+"/levels/original/lvl-";
 
@@ -273,17 +255,6 @@ public class LevelGenerator implements MarioLevelGenerator{
                 }
             }
         }
-
-        // Add normal slice to 1 populated hashmap entries to even out distributions and prevent repetitions
-//        for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
-//            // Add an escape when there are only a few options
-//            //if(SliceDistributions.get(entry.getKey()).Size() <= 4) {}
-//            SliceDistributions.get(entry.getKey()).update("--------------XX");
-//
-//            //MB: THIS COULD BE REMOVED!!!! Make sure vanilla has all possible
-//            SliceDistributions.get("--------------XX").update(entry.getKey());
-//
-//        }
 
         // Hand-crafted tweaks to improve HashMap - this is so the generator does not get stuck in an infinite loop
         // (i.e. producing the same pattern endlessly)

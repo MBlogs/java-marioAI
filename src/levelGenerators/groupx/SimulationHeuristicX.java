@@ -13,8 +13,10 @@ import static java.lang.Math.abs;
  * Created by Xavier Weber on 12/7/19.
  */
 public class SimulationHeuristicX {
+
     // Constructor
     Utils groupxutils;
+
     public SimulationHeuristicX(){
         groupxutils = new Utils();
     }
@@ -38,10 +40,25 @@ public class SimulationHeuristicX {
         int coins = stats.coins;
 
         // Absolute difference with our target for each feature
-        int fitness = abs(enemieskilled - 5) + abs(jumps-18) + abs(airtime-18) + abs(Xjump-160) + abs(mushroom-1) +
-                abs(coins-3);
+        //int fitness = abs(enemieskilled - 5) + abs(jumps-18) + abs(airtime-18) + abs(Xjump-160) + abs(mushroom-1) +
+        //        abs(coins-3);
 
-        // NOTE: lower is better
+        int df = stats.flowersCollected;
+        int dm = stats.mushroomsCollected;
+
+        int k = stats.killsTotal;
+        int kst = stats.stompKills;
+        int ksh = stats.shellKills;
+        int kf = stats.fireKills;
+        int s = (int) stats.winRate;
+        int m = stats.marioState;
+        int bh = stats.bricksDestroyed;
+        int c = stats.coins;
+        int t = stats.remainingTime;
+
+        int fitness = 64*df + 58*dm + 42*k + 12*kst + 17*ksh + 4*kf + 1024*s + 32*m + 24*bh + 16*c + 8*t;
+
+        // NOTE: higher is better now
         return fitness;
     }
 }
