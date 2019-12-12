@@ -61,8 +61,8 @@ public class Optimizer {
     private SimulationHeuristicX simulationHeuristicX;
     private SimulationHeuristicMoreX simulationHeuristicMoreX;
 
-    public Optimizer() {
-        random = new Random();
+    public Optimizer(Random r) {
+        this.random = r;
         groupxutils = new Utils();
         simulationHeuristicX = new SimulationHeuristicX();
         simulationHeuristicMoreX = new SimulationHeuristicMoreX();
