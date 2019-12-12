@@ -22,14 +22,16 @@ public class PlayLevel {
 
         if (levelFile == null && generator == null) { return; }
 
-        MarioGame game = new MarioGame();
+
+
         MarioAgent agent = new agents.robinBaumgarten.Agent();
 
         // Grab a level from file, found in directory "levels/" or pass null to generate a level automatically.
         String level = getLevel(levelFile, generator);
-        game.buildWorld(level, 1);
 
         // Display the entire level.
+        MarioGame game = new MarioGame();
+        game.buildWorld(level, 1);
 //        game.buildWorld(level, 1);
 
         // Repeat the game several times, maybe.
