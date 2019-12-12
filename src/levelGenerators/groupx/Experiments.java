@@ -156,6 +156,51 @@ public class Experiments {
         game.buildWorld(level,1);
     }
 
+    /*
+    public static final int INITIAL_LEVELS = 20; // levels to create initially
+    public final int LEVEL_N = 5; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
+    private final String MUTATION_BLOCKS = "#%@!SCULoyYgkKrR-";
+    private final String MUTATION_ENEMIES = "yYgkKrR";
+    private final String HEURISTIC = "simulationMore";//"simulation" "simulationMore";
+    public final int MUTATION_N = 10; // How many additional mutated levels to generate in each population
+    private final int CROSSOVERS = 4; // level crossovers in the mutation stage
+    private final double MUTATION_SLICE_RATE = 0.25; //Chances of a slice mutation
+    private final double MUTATION_TILE_RATE = 0.25; //Chance of a tile mutation within a slice mutation
+    private final int ITERATIONS = 10; // Total iterations
+    private final int ISSUE_TWEAK_RANGE = 4;//When trying to fix a level, how many slices either side of problem point to tweak?
+     */
+
+    public void createLevelsExperiment(int nLevel){
+        LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
+        Random r = new Random();
+        //Store a random seed
+        long range = 123456789L;
+        long seed = (long)(r.nextDouble()*range);
+        seed = 123;
+        r.setSeed(seed);
+
+        optimizer = new Optimizer(r);
+        MarioGame game = new MarioGame();
+
+        for (int i = 0; i<nLevel;i++){
+            // Initialise array of correct size to store all fitnesses for all iterations for all levels
+            String[] levels = optimizer.initialiseLevels(generator);
+            // Run full optimization
+            String level = optimizer.runOptimization(levels,generator);
+            saveString(level,"xlvl-"+(i+2)+".txt");
+        }
+    }
+
+    public void saveString(String stringToSave, String filename){
+        try(FileWriter fw = new FileWriter(filename, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter out = new PrintWriter(bw))
+        {
+            out.println(stringToSave);
+            out.close();
+        } catch (IOException e) {
+        }
+    }
 
 
     public void saveArray(String[] arrayToSave, String filename){

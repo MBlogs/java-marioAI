@@ -25,37 +25,16 @@ public class Optimizer {
     private Random random;
     private Utils groupxutils;
 
-    //ToDo Decide on which blocks are allowed to be mutated
-    /* Mutation blocks:
-    -:AIR
-    X:FLOOR
-    #:PYRAMID_BLOCK
-    %:JUMP_THROUGH_BLOCK
-    @: MUSHROOM_BLOCK
-    !:COIN_QUESTION_BLOCK
-    S: NORMAL_BLOCK
-    C: COIN_BLOCK
-    U: MUSHROOM_BLOCK
-    L: 1UP_BLOCK
-    o: COIN
-    y:SPIKY
-    Y:SPIKY_WINGED
-    g:GOOMBA
-    k:GREEN_KOOPA
-    K:GREEN_KOOPA_WINGED
-    r:RED_KOOPA
-    R:RED_KOOPA_WINGED
-    */
-    public static final int INITIAL_LEVELS = 2; // levels to create initially
-    public final int LEVEL_N = 2; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
+    public static final int INITIAL_LEVELS = 20; // levels to create initially
+    public final int LEVEL_N = 5; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
     private final String MUTATION_BLOCKS = "#%@!SCULoyYgkKrR-";
     private final String MUTATION_ENEMIES = "yYgkKrR";
     private final String HEURISTIC = "simulationMore";//"simulation" "simulationMore";
-    public final int MUTATION_N = 3; // How many additional mutated levels to generate in each population
+    public final int MUTATION_N = 15; // How many additional mutated levels to generate in each population
     private final int CROSSOVERS = 4; // level crossovers in the mutation stage
     private final double MUTATION_SLICE_RATE = 0.25; //Chances of a slice mutation
     private final double MUTATION_TILE_RATE = 0.25; //Chance of a tile mutation within a slice mutation
-    private final int ITERATIONS = 2; // Total iterations
+    private final int ITERATIONS = 10; // Total iterations
     private final int ISSUE_TWEAK_RANGE = 4;//When trying to fix a level, how many slices either side of problem point to tweak?
 
     private SimulationHeuristicX simulationHeuristicX;
@@ -104,7 +83,6 @@ public class Optimizer {
 
     public String[] initialiseLevels(LevelGenerator generator){
         // Intitialise a set of levels through slice distributions.
-        // ToDo: Allow for level fixing in initialising. beneficial more varied starting pool (IMPORTANT!)
 
         System.out.println("Initializing starting levels...");
         String[] levels = new String[Optimizer.INITIAL_LEVELS];
@@ -137,7 +115,6 @@ public class Optimizer {
     }
 
     public String[] selectLevels(String[] candidateLevels,double[] fitnesses, LevelGenerator generator){
-        // ToDO: Select via Tournament selection rather than sorting by best and cutting
         String[] validLevels = new String[LEVEL_N];
         int numValidLevels = 0;
         int levelCandidate = 0;
