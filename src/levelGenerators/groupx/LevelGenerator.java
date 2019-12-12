@@ -23,8 +23,8 @@ public class LevelGenerator implements MarioLevelGenerator{
     private Utils groupxutils;
     private Optimizer optimizer;
     private HashMap<String, SliceDistribution> SliceDistributions = null;
-    ArrayList<String> allSlices = null;
-    Random r;
+    private ArrayList<String> allSlices = null;
+    public Random r;
 
 
     // Constructor
@@ -34,8 +34,6 @@ public class LevelGenerator implements MarioLevelGenerator{
         this.groupxdir = workingdir+"/src/levelGenerators/groupx/";
         this.groupxutils = new Utils();
         this.optimizer = new Optimizer(r);
-        this.SliceDistributions = retrieveSliceDistributions();
-        this.allSlices = retrieveAllSlices();
     }
 
     public void seed(){
@@ -53,9 +51,12 @@ public class LevelGenerator implements MarioLevelGenerator{
     }
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
-        // Step 0: Retrieve the pre-built distributions
-        this.SliceDistributions = retrieveSliceDistributions();
-        this.allSlices = retrieveAllSlices();
+        if(SliceDistributions == null){
+            // Step 0: Retrieve the pre-built distributions
+            this.SliceDistributions = retrieveSliceDistributions();
+            this.allSlices = retrieveAllSlices();
+        }
+
         // Step 1: Initialisation.
         String[] levels = optimizer.initialiseLevels(this);
         // Step 2: Evaluate initial levels and select the best
@@ -72,13 +73,17 @@ public class LevelGenerator implements MarioLevelGenerator{
      * @param model contain a model of the level
      */
     public String getSlicedLevel(MarioLevelModel model, MarioTimer timer){
+        if(SliceDistributions == null){
+            // Step 0: Retrieve the pre-built distributions
+            this.SliceDistributions = retrieveSliceDistributions();
+            this.allSlices = retrieveAllSlices();
+        }
+
 
         // Clear the map
         model.clearMap();
-
         // Get HashMap with SliceDistributions
         int length = SliceDistributions.size();
-
         // Get ArrayList with all slices
         int nSlices = allSlices.size();
 
@@ -143,7 +148,7 @@ public class LevelGenerator implements MarioLevelGenerator{
     public String sampleNextSlice(String slice){
         // If it's a known slice, return from sample. Else return random.
         if(SliceDistributions.containsKey(slice)){
-            return SliceDistributions.get(slice).sample();
+            return SliceDistributions.get(slice).sample(r);
         } else {
             return sampleRandomSlice();
         }

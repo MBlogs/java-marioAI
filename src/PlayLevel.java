@@ -16,17 +16,14 @@ public class PlayLevel {
         String levelFile = null; //"levels/original/lvl-1.txt"
         Utils groupxutils = new Utils();
 
-        Experiments e = new Experiments();
-        e.playabilityExperiment(2, 2);
-
         //XW: init projectXGenerator
         LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
         //generator.makeDistribution();
 
+        Experiments e = new Experiments();
+        e.fitnessExperiment(2, 3);
 
         if (levelFile == null && generator == null) { return; }
-
-
 
         MarioAgent agent = new agents.robinBaumgarten.Agent();
 
@@ -35,8 +32,7 @@ public class PlayLevel {
 
         // Display the entire level.
         MarioGame game = new MarioGame();
-        game.buildWorld(level, 1);
-//        game.buildWorld(level, 1);
+        //game.buildWorld(level, 1);
 
         // Repeat the game several times, maybe.
         int playAgain = 0;

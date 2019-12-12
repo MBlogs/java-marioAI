@@ -68,41 +68,4 @@ public class SliceDistribution implements Serializable  {
     public int Size(){
         return this.totalSize;
     }
-
-    /*
-    //Returns a sampled action from this particular ActionDistribution
-    public int sampleAction(){
-
-        // get random number between 0 and sum
-        int rand = new Random().nextInt(sum());
-
-        // get the random action
-        int currentSum = 0;
-        for( int i=0; i<=5; i++){
-            currentSum += actionCounts[i];
-            if( rand <= currentSum ){
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public int sum(){
-        // Sum all elements in this ActionDistribution
-        int sumThis=0;
-        for (int i : actionCounts){
-            sumThis += i;
-        }
-        return sumThis;
-    }
-
-    public double magnitude(){
-        // Sum all elements in this ActionDistribution
-        int sumThis=0;
-        for (int i : actionCounts){
-            sumThis += Math.pow(i, 2);
-        }
-        return Math.sqrt(sumThis);
-    }
-    */
 }
