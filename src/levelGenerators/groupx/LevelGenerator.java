@@ -251,15 +251,30 @@ public class LevelGenerator implements MarioLevelGenerator{
         }
 
         // Add normal slice to 1 populated hashmap entries to even out distributions and prevent repetitions
-        for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
-            // Add an escape when there are only a few options
-            //if(SliceDistributions.get(entry.getKey()).Size() <= 4) {}
-            SliceDistributions.get(entry.getKey()).update("--------------XX");
+//        for (Map.Entry<String, SliceDistribution> entry : SliceDistributions.entrySet()) {
+//            // Add an escape when there are only a few options
+//            //if(SliceDistributions.get(entry.getKey()).Size() <= 4) {}
+//            SliceDistributions.get(entry.getKey()).update("--------------XX");
+//
+//            //MB: THIS COULD BE REMOVED!!!! Make sure vanilla has all possible
+//            SliceDistributions.get("--------------XX").update(entry.getKey());
+//
+//        }
 
-            //MB: THIS COULD BE REMOVED!!!! Make sure vanilla has all possible
-            SliceDistributions.get("--------------XX").update(entry.getKey());
-
-        }
+        // Hand-crafted tweaks to improve HashMap - this is so the generator does not get stuck in an infinite loop
+        // (i.e. producing the same pattern endlessly)
+        SliceDistributions.get("---SSSS--oS---XX").update("--------------XX");
+        SliceDistributions.get("---SSSS--oS--kXX").update("--------------XX");
+        SliceDistributions.get("---SSSSSSSS---XX").update("--------------XX");
+        SliceDistributions.get("---SSS---oS--kXX").update("--------------XX");
+        SliceDistributions.get("---SSS---oS---XX").update("--------------XX");
+        SliceDistributions.get("---SSCS--gSSSSXX").update("---SSSS--gSSSSXX");
+        SliceDistributions.get("---SSCS--gSSSSXX").update("--------------XX");
+        SliceDistributions.get("---SSSS--gSSSSXX").update("---SSCS--gSSSSXX");
+        SliceDistributions.get("---SSSS--gSSSSXX").update("--------------XX");
+        SliceDistributions.get("------S---S--gXX").update("--------------XX");
+        SliceDistributions.get("------Q---?--gXX").update("--------------XX");
+        SliceDistributions.get("----?---%|||%|||").update("--------------XX");
 
         ArrayList<String> allSlices = new ArrayList<>();
 
