@@ -126,6 +126,38 @@ public class Experiments {
         saveArray(records,"fitnessExperiment.txt");
     }
 
+    /**
+     * This experiment outputs 2 starting levels and the result after several mutations.
+     * It is to be run with Optimizer config: LEVEL_N=2, INITIAL_LEVELS=5
+     * When complete, the data generated is saved to file
+     */
+    public void visualMutationExperiment(){
+        LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
+        Random r = new Random();
+        //Store a random seed
+        long range = 123456789L;
+        long seed = (long)(r.nextDouble()*range);
+        seed = 123;
+        r.setSeed(seed);
+
+        optimizer = new Optimizer(r);
+        MarioGame game = new MarioGame();
+
+        // Initialise array of correct size to store all fitnesses for all iterations for all levels
+        String[] levels = optimizer.initialiseLevels(generator);
+        game.buildWorld(levels[0],1);
+        game.buildWorld(levels[1],1);
+        String[] candidateLevels = optimizer.generateCandidateLevels(levels);
+        double[] fitnesses = optimizer.evaluateEveryLevel(candidateLevels);
+        levels = optimizer.selectLevels(candidateLevels,fitnesses,generator);
+        // Print the levels
+        String level = optimizer.runOptimization(levels,generator);
+        //Print final level
+        game.buildWorld(level,1);
+    }
+
+
+
     public void saveArray(String[] arrayToSave, String filename){
         try(FileWriter fw = new FileWriter(filename, true);
             BufferedWriter bw = new BufferedWriter(fw);
@@ -140,6 +172,8 @@ public class Experiments {
         } catch (IOException e) {
         }
     }
+
+
 
 
 }

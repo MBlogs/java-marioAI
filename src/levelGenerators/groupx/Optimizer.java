@@ -46,16 +46,16 @@ public class Optimizer {
     r:RED_KOOPA
     R:RED_KOOPA_WINGED
     */
-    public static final int INITIAL_LEVELS = 20; // levels to create initially
-    public final int LEVEL_N = 10; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
+    public static final int INITIAL_LEVELS = 2; // levels to create initially
+    public final int LEVEL_N = 2; // levels to carry over into new populations. Needs to be < INITIAL LEVELS
     private final String MUTATION_BLOCKS = "#%@!SCULoyYgkKrR-";
     private final String MUTATION_ENEMIES = "yYgkKrR";
     private final String HEURISTIC = "simulationMore";//"simulation" "simulationMore";
-    public final int MUTATION_N = 20; // How many additional mutated levels to generate in each population
+    public final int MUTATION_N = 3; // How many additional mutated levels to generate in each population
     private final int CROSSOVERS = 4; // level crossovers in the mutation stage
     private final double MUTATION_SLICE_RATE = 0.25; //Chances of a slice mutation
     private final double MUTATION_TILE_RATE = 0.25; //Chance of a tile mutation within a slice mutation
-    private final int ITERATIONS = 30; // Total iterations
+    private final int ITERATIONS = 2; // Total iterations
     private final int ISSUE_TWEAK_RANGE = 4;//When trying to fix a level, how many slices either side of problem point to tweak?
 
     private SimulationHeuristicX simulationHeuristicX;
@@ -235,7 +235,7 @@ public class Optimizer {
         for (int c=0;c<crossoverPoints.length;c+=2){
             //System.out.println("getCrossLevel. Crossover point is: "+crossoverPoints[c]);
             // From the first cross over point to the next, get the slice from level2 and put it in level1.
-            for(int i = crossoverPoints[c]; i < crossoverPoints[c]-1; i++){
+            for(int i = crossoverPoints[c]; i < crossoverPoints[c+1]; i++){
                 String slice = groupxutils.getVerticalSlice(level2,i);
                 level1 = groupxutils.setVerticalSlice(level1,slice,i);
             }

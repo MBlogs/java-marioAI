@@ -21,8 +21,10 @@ public class PlayLevel {
         //generator.makeDistribution();
 
         Experiments e = new Experiments();
-        e.fitnessExperiment(2, 3);
+        //e.fitnessExperiment(10, 30);
+        e.visualMutationExperiment();
 
+        /*
         if (levelFile == null && generator == null) { return; }
 
         MarioAgent agent = new agents.robinBaumgarten.Agent();
@@ -50,5 +52,7 @@ public class PlayLevel {
             if (generateDifferentLevels) { level = generateLevel(generator); }
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time
         }
+
+         */
     }
 }
