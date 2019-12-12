@@ -11,7 +11,7 @@ public class PlayLevel {
 
     public static void main(String[] args) {
         // Run settings:
-        boolean visuals = true;
+        boolean visuals = false;
         boolean generateDifferentLevels = false;  // Each play through will be different
         String levelFile = null; //"levels/original/lvl-1.txt"
         Utils groupxutils = new Utils();
@@ -20,9 +20,12 @@ public class PlayLevel {
         LevelGenerator generator = new levelGenerators.groupx.LevelGenerator();
         //generator.makeDistribution();
 
+        Experiments e = new Experiments();
+        //e.fitnessExperiment(10, 30);
+        e.visualMutationExperiment();
+
+        /*
         if (levelFile == null && generator == null) { return; }
-
-
 
         MarioAgent agent = new agents.robinBaumgarten.Agent();
 
@@ -31,8 +34,7 @@ public class PlayLevel {
 
         // Display the entire level.
         MarioGame game = new MarioGame();
-        game.buildWorld(level, 1);
-//        game.buildWorld(level, 1);
+        //game.buildWorld(level, 1);
 
         // Repeat the game several times, maybe.
         int playAgain = 0;
@@ -45,10 +47,12 @@ public class PlayLevel {
 
             // Print the results of the game
             System.out.println(result.getGameStatus().toString());
-            //System.out.println(resultToStats(result).toString());
+            System.out.println(resultToStats(result).toString());
 
             if (generateDifferentLevels) { level = generateLevel(generator); }
             playAgain = (game.playAgain == 0 && visuals) ? 0 : 1;  // If visuals are not on, only play 1 time
         }
+
+         */
     }
 }

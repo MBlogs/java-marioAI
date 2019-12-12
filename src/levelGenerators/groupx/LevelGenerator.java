@@ -23,21 +23,40 @@ public class LevelGenerator implements MarioLevelGenerator{
     private Utils groupxutils;
     private Optimizer optimizer;
     private HashMap<String, SliceDistribution> SliceDistributions = null;
-    ArrayList<String> allSlices = null;
+    private ArrayList<String> allSlices = null;
+    public Random r;
 
 
     // Constructor
     public LevelGenerator(){
+        seed();
         this.workingdir = System.getProperty("user.dir");
         this.groupxdir = workingdir+"/src/levelGenerators/groupx/";
         this.groupxutils = new Utils();
-        this.optimizer = new Optimizer();
+        this.optimizer = new Optimizer(r);
+    }
+
+    public void seed(){
+        this.r = new Random();
+        //Store a random seed
+        long range = 123456789L;
+        long seed = (long)(r.nextDouble()*range);
+        //seed = 58561945;
+
+        // Set the Random object seed
+        r.setSeed(seed);
+
+        //Print the seed - this will allow reproduction of the same level.
+        System.out.println("Level Seed is: "+seed);
     }
 
     public String getGeneratedLevel(MarioLevelModel model,MarioTimer timer){
-        // Step 0: Retrieve the pre-built distributions
-        this.SliceDistributions = retrieveSliceDistributions();
-        this.allSlices = retrieveAllSlices();
+        if(SliceDistributions == null){
+            // Step 0: Retrieve the pre-built distributions
+            this.SliceDistributions = retrieveSliceDistributions();
+            this.allSlices = retrieveAllSlices();
+        }
+
         // Step 1: Initialisation.
         String[] levels = optimizer.initialiseLevels(this);
         // Step 2: Evaluate initial levels and select the best
@@ -48,23 +67,23 @@ public class LevelGenerator implements MarioLevelGenerator{
         return level;
     }
 
-
     /**
      * Generate a playable mario level
      *
      * @param model contain a model of the level
      */
     public String getSlicedLevel(MarioLevelModel model, MarioTimer timer){
+        if(SliceDistributions == null){
+            // Step 0: Retrieve the pre-built distributions
+            this.SliceDistributions = retrieveSliceDistributions();
+            this.allSlices = retrieveAllSlices();
+        }
 
-        // INIT random
-        Random r = new Random();
 
         // Clear the map
         model.clearMap();
-
         // Get HashMap with SliceDistributions
         int length = SliceDistributions.size();
-
         // Get ArrayList with all slices
         int nSlices = allSlices.size();
 
@@ -93,7 +112,7 @@ public class LevelGenerator implements MarioLevelGenerator{
 
         for(int i = 4; i < 148; i++){
             SliceDistribution temp = SliceDistributions.get(currentSlice);
-            nextSlice = temp.sample();
+            nextSlice = temp.sample(r);
 
             // Make sure level isn't getting boring (many slices same type in a row)
             if(nextSlice.equals(currentSlice)) boring+=1;
@@ -121,10 +140,15 @@ public class LevelGenerator implements MarioLevelGenerator{
         return allSlices.get(r.nextInt(nSlices));
     }
 
+    public String sampleNextSlice() {
+        int nSlices = allSlices.size();
+        return allSlices.get(r.nextInt(nSlices));
+    }
+
     public String sampleNextSlice(String slice){
         // If it's a known slice, return from sample. Else return random.
         if(SliceDistributions.containsKey(slice)){
-            return SliceDistributions.get(slice).sample();
+            return SliceDistributions.get(slice).sample(r);
         } else {
             return sampleRandomSlice();
         }
